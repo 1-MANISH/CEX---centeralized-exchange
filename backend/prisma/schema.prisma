@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+        provider = "prisma-client"
+        output   = "../src/generated/prisma"
+}
+
+datasource db {
+        provider = "postgresql"
+}
+
+enum Status {
+        close
+        open
+        cancelled
+}
+enum Type {
+        market
+        limit
+}
+enum Side {
+        buy
+        sell 
+}
+
+model User {
+        id                     Int             @default(autoincrement()) @id
+        username        String         @unique
+        password        String
+        orders            Order[]
+        fills                 Fill[]
+}
+
+model Stock{
+        id              Int     @default(autoincrement()) @id
+        name         String @unique
+        symbol       String @unique
+        fills           Fill[]
+        orders      Order[]
+}
+
+
+model Order{
+        id                      Int             @default(autoincrement()) @id
+        userId              Int
+        marketId          Int
+        price                Int
+        quantity           Int
+        type                Type 
+        side                 Side
+        filledQuantity Int
+        status             Status
+        createdAt       DateTime @default(now())
+        user     User    @relation(fields: [userId],references: [id])
+        market Stock  @relation(fields: [marketId],references: [id])
+        fills    Fill[]
+}
+
+
+model Fill{
+        id                              Int                     @default(autoincrement()) @id
+        quantity                    Int                      
+        side                          Side
+        type                         Type
+        userId                     Int
+        price                        Int
+        marketId                 Int
+        originalOrderID      Int
+        createdAt               DateTime @default(now())
+        user    User    @relation(fields: [userId],references: [id])
+        market   Stock   @relation(fields:[marketId],references: [id])
+        original  Order  @relation(fields:[originalOrderID],references: [id])
+}
