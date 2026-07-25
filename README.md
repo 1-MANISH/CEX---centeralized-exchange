@@ -90,6 +90,3 @@ Contributing
 
 This is a personal learning project — contributions are welcome. Open issues for design questions or proposed improvements.
 
-License
-
-MIT
