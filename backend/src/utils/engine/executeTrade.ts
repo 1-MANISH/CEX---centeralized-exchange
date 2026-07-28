@@ -2,11 +2,11 @@
 
 import { BALANCES, ORDERBOOK } from "../..";
 import { prismaClient } from "../../db";
-import type { InComingOrder } from "../interfaces";
+import type { Order } from "../interfaces";
 
 export async function executeTrade(
-    buyOrder: InComingOrder,
-    sellOrder: InComingOrder
+    buyOrder: Order,
+    sellOrder: Order
 ) {
         const tradeQty = Math.min(
                 buyOrder.remainingQuantity,

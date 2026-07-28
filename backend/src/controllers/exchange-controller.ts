@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import {orderBodySchema} from "../types/exchange-schema.ts"
+import {depositBodySchema, orderBodySchema} from "../types/exchange-schema.ts"
 import { processOrder } from "../utils/engine/processOrder.ts";
-import { prismaClient } from "../db.ts";
+import { BALANCES } from "../index.ts";
 
 function getUserId(req:Request):number{
        if(!req.userId)  throw new Error("Missing authenticated user")
@@ -36,22 +36,8 @@ async function createOrder(req:Request,res:Response):Promise<void> {
         }
 
         let order = parsedBody.data
-
-        const newOrder = await prismaClient.order.create({
-                data:{
-                        userId,
-                        ...order,
-                        status:"open",
-                        filledQuantity:0,
-                        remainingQuantity:order.quantity,
-                        price:order.price || null
-                }
-        })
-
-        const result = await processOrder({
-                ...newOrder
-        })
-
+        
+        const result = await processOrder({...order,userId})
 
         res.status(201).json({
                result
@@ -60,6 +46,31 @@ async function createOrder(req:Request,res:Response):Promise<void> {
 }
 
 
+async function depositAsset(req:Request,res:Response):Promise<void> {
+         const userId = getUserId(req) as number
+
+         const parsedBody  = depositBodySchema.safeParse(req.body)
+
+         if(!parsedBody.success){
+                 res.status(400).json(parsedBody.error)
+                 return
+         }
+
+        const {symbol,quantity} = parsedBody.data
+
+        if(!BALANCES[userId]) BALANCES[userId] = {}
+
+         if(!BALANCES[userId][symbol]) BALANCES[userId][symbol] = {available:0,locked:0}
+        BALANCES[userId][symbol].available += quantity
+
+        res.status(200).json({
+                message:"Asset Deposited",
+                BALANCES
+        })
+}
+
+
 export  {
-        createOrder
+        createOrder,
+        depositAsset
 }

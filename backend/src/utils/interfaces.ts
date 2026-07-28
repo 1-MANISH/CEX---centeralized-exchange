@@ -1,5 +1,10 @@
 
 
+type Balance = {
+        available:number,
+        locked:number
+}
+
 type Status = "open" | "cancelled" | "close"
 
 type Type = "market" | "limit"
@@ -21,9 +26,7 @@ type Side = "buy" | "sell"
     createdAt: Date;
 }
 
-interface InComingOrder extends Order{
-        userId:number,
-}
 
 
-export type {Order, InComingOrder, Status, Type, Side}
+
+export type {Order, Status, Type, Side , Balance}

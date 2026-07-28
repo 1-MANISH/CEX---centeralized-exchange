@@ -26,3 +26,8 @@ export const orderBodySchema = z.discriminatedUnion("type",[
                 quantity:z.number().positive("Quantity must be greater than 0"),
         })
 ])
+
+export const depositBodySchema = z.object({
+        symbol:z.string().trim().min(1,"symbol is required"),
+        quantity:z.number().positive("Quantity must be greater than 0")
+})

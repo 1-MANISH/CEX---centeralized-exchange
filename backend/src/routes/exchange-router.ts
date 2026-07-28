@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { createOrder } from "../controllers/exchange-controller.ts";
+import { createOrder, depositAsset } from "../controllers/exchange-controller.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { requiredAuth } from "../middleware/auth-middleware.ts";
 
 const exchangeRouter = Router()
+
+
+exchangeRouter.post('/deposit',requiredAuth,asyncHandler(depositAsset))
 
 // --- Orders ---
 
