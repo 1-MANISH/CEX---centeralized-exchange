@@ -7,9 +7,8 @@ import express , {
 import { ENV } from "./utils/env.ts"
 import appRouter from "./routes/index.ts"
 import {  type Balance, type Order } from "./utils/interfaces.ts"
+
 // in-memory state
-
-
 export const BALANCES : Record<number,Record<string,Balance>> = {
         1:{
                 USD:{available:0,locked:0} ,
@@ -21,7 +20,7 @@ export const BALANCES : Record<number,Record<string,Balance>> = {
 bids:[] // highest price first
 asks:[] // lowest price first
 */
-export const ORDERBOOK:Record<string,{bids:Order[],ask:Order[],lastTradePrice:number}> = {
+export const ORDERBOOK:Record<string,{bids:Order[],asks:Order[],lastTradePrice:number}> = {
         ETH:{bids:[] ,asks:[] ,lastTradePrice:0},
         SOL:{bids:[] ,asks:[] ,lastTradePrice:0}
 }

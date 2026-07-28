@@ -26,6 +26,7 @@ function getUserId(req:Request):number{
 */
 
 async function createOrder(req:Request,res:Response):Promise<void> {
+        
         const userId = getUserId(req) as number
 
         const parsedBody = orderBodySchema.safeParse(req.body)

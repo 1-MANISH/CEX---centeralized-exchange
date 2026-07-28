@@ -4,6 +4,7 @@ import { authSchema } from "../types/auth.schema.ts";
 import {sendValidationError} from "../utils/validation.ts"
 import { prismaClient } from "../db.ts";
 import { createToken } from "../utils/auth-token.ts";
+import { BALANCES } from "../index.ts";
 
 async function signupHandler(
         req:Request,
@@ -28,6 +29,8 @@ async function signupHandler(
                                 password:hashedPassword 
                         }
                 })
+
+                BALANCES[user.id] = {USD:{available:0,locked:0},SOL:{available:0,locked:0},BTC:{available:0,locked:0}}
 
                 res.status(201).json({
                         token:createToken({

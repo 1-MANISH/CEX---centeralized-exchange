@@ -14,8 +14,8 @@ datasource db {
 
 
 enum Status {
-        close
         open
+        close
         cancelled
 }
 enum Type {

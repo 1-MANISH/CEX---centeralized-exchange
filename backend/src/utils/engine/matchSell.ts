@@ -3,74 +3,32 @@ import type { Order } from "../interfaces"
 import { executeTrade } from "./executeTrade";
 export async function matchSell(order:Order) {
 
-        const orderBook = ORDERBOOK[order.market]
-        const bids = orderBook.bids
+        const bids = ORDERBOOK[order.market]?.bids // max to min
 
-        while (
-                order.remainingQuantity > 0 &&
-                bids.length > 0
-        ) {
-                // Highest BUY order
-                const bestBid = bids[0];
+        while (order.remainingQuantity > 0 && bids.length > 0) {
 
-                // LIMIT SELL:
-                // Don't sell below your requested price
-                if (
-                order.type === "limit" &&
-                bestBid.price < order.price
-                ) {
-                break
-                }
+                const currentBestBid = bids[0]
 
+                if (order.type === "limit" && currentBestBid.price < order.price) break
+                
                 // Execute one trade
-                await executeTrade(bestBid, order)
+                await executeTrade(currentBestBid, order) // =>(buyOrder, sellOrder)
 
-                // Remove completely filled BUY order
-                if (bestBid.remainingQuantity === 0) 
-                        bids.shift()
+              
+                if (currentBestBid.remainingQuantity === 0) 
+                        bids.shift()   // Remove completely filled BUY order
                 
         }
 
-        // -------------------------------------------------
-        // If LIMIT order wasn't completely filled,
-        // add remaining quantity to orderbook
-        // -------------------------------------------------
 
-        if (
-                order.type === "limit" &&
-                order.remainingQuantity > 0
-        ) {
-                order.status =
-                order.filledQuantity > 0
-                        ? "open"
-                        : "open";
-
-                orderBook.asks.push(order)
-
-                // Lowest price first
-                orderBook.asks.sort(
-                (a:any, b:any) => a.price - b.price
-                );
+         if(order.remainingQuantity>0){
+                // partially filled -  still can be on order book
+                order.status = "open"
+                ORDERBOOK[order.market].asks.push(order)
+                ORDERBOOK[order.market].asks.sort((a,b)=>a.price-b.price))// ascsending order
+                        
+        }else{
+                order.status = "close"
+                ORDERBOOK[order.market].asks = ORDERBOOK[order.market].asks.filter(ask=>ask.id != order.id)
         }
-
-        // -------------------------------------------------
-        // MARKET orders never remain in orderbook
-        // -------------------------------------------------
-
-        if (order.type === "market") {
-                order.status =
-                order.remainingQuantity === 0
-                        ? "close"
-                        : "open";
-        }
-
-        // If LIMIT order completely matched
-        if (
-                order.type === "limit" &&
-                order.remainingQuantity === 0
-        ) {
-                order.status = "close";
-        }
-
-        return order;
 }

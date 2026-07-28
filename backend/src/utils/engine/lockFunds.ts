@@ -4,30 +4,26 @@ import { estimateMarketBuyCost } from "./estimateMarketBuyCost";
 
 export  function lockFunds(order:any){
 
+
         if(order.side ==="buy"){
-                let amount = 0
-                if(order.type === "limit"){
-                        amount = order.price * order.quantity
-                }else{
-                        amount = estimateMarketBuyCost(order)
-                }
+                let amountNeeded = 0
+                if(order.type === "limit")amountNeeded = order.price * order.quantity
+                else amountNeeded = estimateMarketBuyCost(order) // estimate market buy cost which is cheapest ask - 
 
-                const balance =  BALANCES[order.userId].USD
+                const userBalance =  BALANCES[order.userId]?.USD
                 // bro u can't have enough funds
-                if(balance.available < amount) throw new Error("Insufficient funds")
+                if(userBalance.available < amountNeeded) throw new Error("Locking funds failed : Insufficient funds")
 
-                balance.available -= amount
-                balance.locked += amount
+                userBalance.available -= amountNeeded
+                userBalance.locked += amountNeeded
 
         }else{
                 // sell  -> either its limit order or market order  - first need to have enough assets
-                let asset = BALANCES[order.userId][order.market]
+                let userAssetBalance = BALANCES[order.userId]?.[order.market]
 
-                if(!asset) throw new Error("Asset not found in user balance")
+                if(userAssetBalance.available < order.quantity) throw new Error("Locking funds failed : Insufficient funds")
 
-                if(asset.available < order.quantity) throw new Error("Insufficient Assets")
-
-                asset.available -= order.quantity
-                asset.locked += order.quantity
+                userAssetBalance.available -= order.quantity
+                userAssetBalance.locked += order.quantity
         }
 }

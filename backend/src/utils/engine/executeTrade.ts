@@ -1,5 +1,4 @@
 
-
 import { BALANCES, ORDERBOOK } from "../..";
 import { prismaClient } from "../../db";
 import type { Order } from "../interfaces";
@@ -22,30 +21,22 @@ export async function executeTrade(
         sellOrder.filledQuantity += tradeQty
 
 
-        buyOrder.status =
-                buyOrder.remainingQuantity === 0
-                ? "close"
-                : "open";
+        buyOrder.status =buyOrder.remainingQuantity === 0? "close": "open"
 
-        sellOrder.status =
-                sellOrder.remainingQuantity === 0
-                ? "close"
-                : "open";
+        sellOrder.status = sellOrder.remainingQuantity === 0? "close" : "open"
 
 
         ORDERBOOK[buyOrder.market].lastTradePrice =tradePrice
 
+        // update the balances -  means unlock the funds
         BALANCES[buyOrder.userId].USD.locked -=tradeQty * tradePrice
-
-        BALANCES[buyOrder.userId].SOL.available +=tradeQty
-
+        BALANCES[buyOrder.userId].[buyOrder.market].available +=tradeQty
 
 
-        BALANCES[sellOrder.userId].SOL.locked -=tradeQty
-
+        BALANCES[sellOrder.userId].[sellOrder.market].locked -=tradeQty
         BALANCES[sellOrder.userId].USD.available += tradeQty * tradePrice
 
-
+        //make a trade- for each buy and sell order
         await prismaClient.fill.create({
                 data: {
                         quantity: tradeQty,
@@ -56,8 +47,7 @@ export async function executeTrade(
                         userId: buyOrder.userId,
                         originalOrderID: buyOrder.id
                 }
-        });
-
+        })
 
         await prismaClient.fill.create({
                 data: {
@@ -71,10 +61,10 @@ export async function executeTrade(
                 }
         })
 
-
+        // update the order for buy and sell
         await prismaClient.order.update({
                 where: {
-                         id: buyOrder.id
+                        id: buyOrder.id
                 },
                 data: {
                         filledQuantity:buyOrder.filledQuantity,
@@ -85,7 +75,7 @@ export async function executeTrade(
 
         await prismaClient.order.update({
                 where: {
-                         id: sellOrder.id
+                        id: sellOrder.id
                 },
                 data: {
                         filledQuantity:sellOrder.filledQuantity,
@@ -93,4 +83,6 @@ export async function executeTrade(
                         status: sellOrder.status
                 }
         })
+
+
 }
