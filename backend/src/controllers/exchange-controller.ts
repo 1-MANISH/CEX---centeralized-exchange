@@ -89,6 +89,44 @@ async function getOrder(req:Request,res:Response):Promise<void> {
                 orderStatus:order?.status
         })
 }
+async function cancelOrder(req:Request,res:Response):Promise<void> {
+        const userId = getUserId(req) as number
+        const orderId = Number(req.params.orderId )as number
+
+        const order = await prismaClient.order.findFirst({
+                where:{id:orderId},
+                include:{fills:true,user:true}
+        })
+
+        if(order?.userId !== userId) throw new Error("Unauthorized")
+
+        //  unlock funds and remove this order from order book
+       // order may be partially filled
+       const filledQuantity = order.filledQuantity
+       const remainingQuantity = order.remainingQuantity
+
+      
+        if(order.side ==="buy"){
+                BALANCES[userId].USD.locked -= filledQuantity*order.price
+                BALANCES[userId].USD.available += remainingQuantity*order.price
+                ORDERBOOK[order.market].bids = ORDERBOOK[order.market].bids.filter((bid) => bid.price !== order.price)
+        }else{
+                BALANCES[userId][order.market].locked -= remainingQuantity*order.price
+                BALANCES[userId][order.market].available += filledQuantity*order.price
+                ORDERBOOK[order.market].asks = ORDERBOOK[order.market].asks.filter((ask) => ask.price !== order.price)
+        }
+       
+        await prismaClient.order.update({
+                where:{id:orderId},
+                data:{
+                        status:"close"
+                }
+        })
+
+        res.status(200).json({
+                message:"Order cancelled"
+        })
+}
 
 async function getAllOrder(req:Request,res:Response):Promise<void> {
         const userId = getUserId(req) as number
@@ -221,5 +259,6 @@ export  {
         getBalance,
         getAllFills,
         getAllStocksMatrix,
-        createAStock
+        createAStock,
+        cancelOrder
 }

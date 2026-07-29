@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createAStock, createOrder, depositAsset, getAllFills, getAllOrder, getAllStocksMatrix, getBalance, getDepth, getOrder } from "../controllers/exchange-controller.ts";
+import { createAStock, createOrder, cancelOrder, depositAsset, getAllFills, getAllOrder, getAllStocksMatrix, getBalance, getDepth, getOrder } from "../controllers/exchange-controller.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { requiredAuth } from "../middleware/auth-middleware.ts";
 
@@ -62,7 +62,7 @@ remaining = 60 SOL
 
 60 SOL removed from orderbook
 */
-exchangeRouter.delete("/order/:orderId", (req, res) => {})
+exchangeRouter.put("/order/:orderId",requiredAuth,asyncHandler(cancelOrder))
 
 // get all orders
 exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
