@@ -105,14 +105,14 @@ async function cancelOrder(req:Request,res:Response):Promise<void> {
        const filledQuantity = order.filledQuantity
        const remainingQuantity = order.remainingQuantity
 
-      
+      // need to think of
         if(order.side ==="buy"){
                 BALANCES[userId].USD.locked -= filledQuantity*order.price
                 BALANCES[userId].USD.available += remainingQuantity*order.price
                 ORDERBOOK[order.market].bids = ORDERBOOK[order.market].bids.filter((bid) => bid.price !== order.price)
         }else{
-                BALANCES[userId][order.market].locked -= remainingQuantity*order.price
-                BALANCES[userId][order.market].available += filledQuantity*order.price
+                BALANCES[userId][order.market].locked -= remainingQuantity
+                BALANCES[userId][order.market].available += filledQuantity
                 ORDERBOOK[order.market].asks = ORDERBOOK[order.market].asks.filter((ask) => ask.price !== order.price)
         }
        
