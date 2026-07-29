@@ -17,9 +17,7 @@ export const ENV = {
         TOKEN_NAME:readRequiredEnv("TOKEN_NAME") ?? "",
         ACCESS_TOKEN_EXPIRY:readRequiredEnv("ACCESS_TOKEN_EXPIRY") ?? "",
         REFRESH_TOKEN_EXPIRY:readRequiredEnv("REFRESH_TOKEN_EXPIRY") ?? "",
-        REDIS_URL:readRequiredEnv("REDIS_URL") ?? "",
-        INCOMING_QUEUE:readRequiredEnv("INCOMING_QUEUE") ?? "backend-to-engine-broker",
-        RESPONSE_QUEUE:`response-queue-${readRequiredEnv("BACKEND_QUEUE_ID") ?? crypto.randomUUID()} }`,
-        ENGINE_TIMEOUT_MS:readRequiredEnv("ENGINE_TIMEOUT_MS") ?? 30000
+       ADMIN_USERNAME:readRequiredEnv("ADMIN_USERNAME") ?? "",
+       ADMIN_PASSWORD:readRequiredEnv("ADMIN_PASSWORD") ?? "",
         
 }

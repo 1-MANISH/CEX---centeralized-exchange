@@ -24,7 +24,7 @@ export async function matchBuy(order: Order) {
         }else{
                 // fully filled
                 order.status = "close"
-                ORDERBOOK[order.market]?.bids = ORDERBOOK[order.market].bids.filter(bid=>bid.id != order.id)
+                ORDERBOOK[order.market].bids = ORDERBOOK[order.market]?.bids.filter(bid=>{return bid.id  != order.id})
         }
                         
 }

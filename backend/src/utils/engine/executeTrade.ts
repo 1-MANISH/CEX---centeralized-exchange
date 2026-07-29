@@ -30,10 +30,10 @@ export async function executeTrade(
 
         // update the balances -  means unlock the funds
         BALANCES[buyOrder.userId].USD.locked -=tradeQty * tradePrice
-        BALANCES[buyOrder.userId].[buyOrder.market].available +=tradeQty
+        BALANCES[buyOrder.userId][buyOrder.market].available +=tradeQty
 
 
-        BALANCES[sellOrder.userId].[sellOrder.market].locked -=tradeQty
+        BALANCES[sellOrder.userId][sellOrder.market].locked -=tradeQty
         BALANCES[sellOrder.userId].USD.available += tradeQty * tradePrice
 
         //make a trade- for each buy and sell order

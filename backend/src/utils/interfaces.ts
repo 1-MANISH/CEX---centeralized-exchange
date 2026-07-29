@@ -26,7 +26,12 @@ type Side = "buy" | "sell"
     createdAt: Date;
 }
 
+interface Matrix {
+        symbol:string,
+        currentPrice:number,
+        volume24h:number,
+        change24h:number
+}
 
 
-
-export type {Order, Status, Type, Side , Balance}
+export type {Order, Status, Type, Side , Balance, Matrix}

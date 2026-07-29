@@ -10,10 +10,10 @@ import {  type Balance, type Order } from "./utils/interfaces.ts"
 
 // in-memory state
 export const BALANCES : Record<number,Record<string,Balance>> = {
-        1:{
-                USD:{available:0,locked:0} ,
-                SOL:{available:0,locked:0} 
-        }
+        // 1:{
+        //         USD:{available:0,locked:0} ,
+        //         SOL:{available:0,locked:0} 
+        // }
 }//balances = {userId:{USD:{available:0,locked:0},SOL:{available:0,locked:0}}}
 
 /*
@@ -21,8 +21,8 @@ bids:[] // highest price first
 asks:[] // lowest price first
 */
 export const ORDERBOOK:Record<string,{bids:Order[],asks:Order[],lastTradePrice:number}> = {
-        ETH:{bids:[] ,asks:[] ,lastTradePrice:0},
-        SOL:{bids:[] ,asks:[] ,lastTradePrice:0}
+        // ETH:{bids:[] ,asks:[] ,lastTradePrice:0},
+        // SOL:{bids:[] ,asks:[] ,lastTradePrice:0}
 }
 
 
@@ -44,7 +44,7 @@ app.use("/",appRouter)
 
 app.use(
         (error:unknown , _req:Request,res:Response,_next:NextFunction)=>{
-                console.error(error)
+                // console.error(error)
 
                 res.status(500).json({
                         error:error instanceof Error ? error.message : "Internal server error"

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOrder, depositAsset } from "../controllers/exchange-controller.ts";
+import { createAStock, createOrder, depositAsset, getAllFills, getAllOrder, getAllStocksMatrix, getBalance, getDepth, getOrder } from "../controllers/exchange-controller.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { requiredAuth } from "../middleware/auth-middleware.ts";
 
@@ -8,6 +8,9 @@ const exchangeRouter = Router()
 
 exchangeRouter.post('/deposit',requiredAuth,asyncHandler(depositAsset))
 
+// create a new stock
+exchangeRouter.post("/stock", requiredAuth,asyncHandler(createAStock))
+exchangeRouter.get("/stocks/matrix", requiredAuth,asyncHandler(getAllStocksMatrix))
 // --- Orders ---
 
 /*
@@ -46,10 +49,10 @@ return {
         fillHistory:[],
         filledQuantity:0,
         remainingQuantity:0
-        orderStatus:"open" | "closed" | "cancelled"
+        orderStatus:"open" | "close" | "cancelled"
 }
 */
-exchangeRouter.get("/order/:orderId", (req, res) => {})
+exchangeRouter.get("/order/:orderId",requiredAuth, asyncHandler(getOrder))
 
 // cancel order -  only unfilled orders can be cancelled
 /*
@@ -62,15 +65,15 @@ remaining = 60 SOL
 exchangeRouter.delete("/order/:orderId", (req, res) => {})
 
 // get all orders
-exchangeRouter.get("/orders", (req, res) => {})
+exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
 
 // --- Market data ---
 // get orderbook - app.get('/depth/:symbol',(req,res)=>{})
-exchangeRouter.get("/depth/:symbol", (req, res) => {})
+exchangeRouter.get("/depth/:symbol",requiredAuth,asyncHandler(getDepth))
 
-exchangeRouter.get("/fills/:symbol", (req, res) => {})
-exchangeRouter.get("/stocks", (req, res) => {})
-exchangeRouter.get("/balance", (req, res) => {})
+exchangeRouter.get("/fills/:symbol",requiredAuth,asyncHandler(getAllFills))
+
+exchangeRouter.get("/balance", requiredAuth,asyncHandler(getBalance))
 
 
 

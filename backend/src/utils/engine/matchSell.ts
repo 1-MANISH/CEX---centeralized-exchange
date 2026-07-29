@@ -25,10 +25,10 @@ export async function matchSell(order:Order) {
                 // partially filled -  still can be on order book
                 order.status = "open"
                 ORDERBOOK[order.market].asks.push(order)
-                ORDERBOOK[order.market].asks.sort((a,b)=>a.price-b.price))// ascsending order
+                ORDERBOOK[order.market].asks.sort((a,b)=>a.price-b.price)// ascsending order
                         
         }else{
                 order.status = "close"
-                ORDERBOOK[order.market].asks = ORDERBOOK[order.market].asks.filter(ask=>ask.id != order.id)
+                ORDERBOOK[order.market].asks = ORDERBOOK[order.market]?.asks.filter(ask=>ask.id != order.id)
         }
 }

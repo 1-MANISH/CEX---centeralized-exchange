@@ -17,7 +17,8 @@ export function estimateMarketBuyCost(order:any){
                 remainingQuantity -= quantity
         }
 
-        // whole orderbook has been consumed still not enough
+        // whole orderbook has been consumed still not enough -  if we want to make this user as market maker
+        // then no check
         if(remainingQuantity > 0) throw new Error("Insufficient funds : not enough orderbook to fill order")
         return amountNeeded
 }

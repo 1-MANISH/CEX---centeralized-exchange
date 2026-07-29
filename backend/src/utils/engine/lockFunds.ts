@@ -21,6 +21,8 @@ export  function lockFunds(order:any){
                 // sell  -> either its limit order or market order  - first need to have enough assets
                 let userAssetBalance = BALANCES[order.userId]?.[order.market]
 
+                if(!userAssetBalance) throw new Error("Locking funds failed : Insufficient funds")
+
                 if(userAssetBalance.available < order.quantity) throw new Error("Locking funds failed : Insufficient funds")
 
                 userAssetBalance.available -= order.quantity
