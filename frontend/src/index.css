@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+
+:root {
+        --bg-dark: #0d0c0e;
+        --card-bg: #161419;
+        --input-bg: #121015;
+        --pink-border: #824b57;
+        --pink-bright: #e8829c;
+        --pink-accent: #9e4359;
+        --chalk-green: #3dbe7e;
+        --chalk-red: #e55555;
+}
+
+body {
+        background-color: var(--bg-dark);
+        color: #ffffff;
+        font-family: 'Architects Daughter', cursive;
+        margin: 0;
+        padding: 0;
+}
+
+.font-mono {
+        font-family: 'Fira Code', monospace;
+}
+
+.chalk-card {
+        background-color: var(--card-bg);
+        border: 2px solid var(--pink-border);
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(217, 107, 133, 0.12);
+}
+
+.chalk-input {
+        background-color: var(--input-bg);
+        border: 1.5px solid var(--pink-border);
+        border-radius: 8px;
+        color: #fff;
+        padding: 8px 12px;
+        outline: none;
+}
+
+.chalk-input:focus {
+        border-color: var(--pink-bright);
+}
+
+.chalk-button {
+        background-color: var(--pink-accent);
+        border: 1.5px dashed var(--pink-bright);
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+}
+
+.chalk-button:hover {
+        background-color: var(--pink-bright);
+        color: #000;
+}
