@@ -9,7 +9,7 @@ export const LandingPage= () => {
                 <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                                 <div className="space-y-4">
-                                        <h1 className="text-5xl font-bold leading-tight">
+                                        <h1 className="text-5xl font-bold leading-tight ">
                                                 Modern <span className="text-[#e8829c]">Test Finance</span>
                                         </h1>
                                         <p className="text-[#a09ca3] text-lg">
@@ -19,9 +19,7 @@ export const LandingPage= () => {
                                                 <input placeholder="Enter your email" className="chalk-input flex-1" />
                                                 <button onClick={() => navigate('/signup')} className="chalk-button">signup</button>
                                         </div>
-                                </div>
-
-                                <div className="chalk-card p-6 text-center space-y-4">
+                                        <div className="chalk-card p-6 text-center space-y-4 mt-10">
                                         <h2 className="text-xl text-[#e8829c]">Simulated Environment</h2>
                                         <div className="grid grid-cols-3 gap-4 pt-2">
                                                 <div className="border border-[#824b57] p-3 rounded text-center">
@@ -38,17 +36,24 @@ export const LandingPage= () => {
                                                 </div>
                                         </div>
                                 </div>
+                                </div>
+
+                                <div className=" p-6 text-center space-y-4">
+                                       <img src="/images/pc.png" alt="Landing Page" />
+                                </div>
                         </div>
 
+                         
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
-                                <div className="chalk-card p-4 flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('spot')}>
+                                <div className="chalk-card p-4 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/spot')}>
                                         <TrendingUp className="text-[#3dbe7e]" />
                                         <div>
                                                 <div className="font-bold">Live Market Data</div>
                                                 <div className="text-xs text-[#a09ca3]">Real-time prices from top exchanges</div>
                                         </div>
                                 </div>
-                                <div className="chalk-card p-4 flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('trade')}>
+                                <div className="chalk-card p-4 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/trade')}>
                                         <PieChart className="text-[#e8829c]" />
                                         <div>
                                                 <div className="font-bold">Advanced Charts</div>

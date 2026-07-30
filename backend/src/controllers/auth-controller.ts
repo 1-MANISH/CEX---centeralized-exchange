@@ -5,6 +5,13 @@ import {sendValidationError} from "../utils/validation.ts"
 import { prismaClient } from "../db.ts";
 import { createToken } from "../utils/auth-token.ts";
 import { BALANCES } from "../index.ts";
+import { ENV } from "../utils/env.ts";
+
+function getUserId(req:Request):number{
+       if(!req.userId)  throw new Error("Missing authenticated user")
+       return req.userId 
+}
+
 
 async function signupHandler(
         req:Request,
@@ -32,10 +39,15 @@ async function signupHandler(
 
                 BALANCES[user.id] = {USD:{available:0,locked:0},SOL:{available:0,locked:0},BTC:{available:0,locked:0}}
 
-                res.status(201).json({
-                        token:createToken({
+                const token = createToken({
                                 userId:user.id
-                        }),
+                 },res)
+
+
+
+                res.status(201).json({
+                        message:'User created successfully',
+                        token,
                         userId:user.id,
                         username:user.username
                 })
@@ -85,10 +97,12 @@ async function signinHandler(
                         return
                 }
 
-                res.status(201).json({
-                        token:createToken({
+                const token = createToken({
                                 userId:userExist.id
-                        }),
+                 },res)
+
+                res.status(201).json({
+                        token,
                         userId:userExist.id,
                         username:userExist.username
                 })
@@ -99,7 +113,31 @@ async function signinHandler(
         }
 }
 
+async function getMyProfile( req:Request,res:Response    ):Promise<void>{
+        const userId = getUserId(req) as number
+
+        const user = await prismaClient.user.findUnique({where:{id:userId}})
+
+        res.status(200).json({user:user.username})
+}
+
+async function logout (req:Request,res:Response):Promise<void>{
+        res.cookie(
+                ENV.TOKEN_NAME as string,
+                "",
+                {
+                        httpOnly:true,
+                        secure:true,
+                        sameSite:"none",
+                        maxAge:0
+                }
+        )
+        res.status(200).json({message:"Logout successful"})
+}
+
 export {
         signupHandler,
-        signinHandler
+        signinHandler,
+        getMyProfile,
+        logout
 }

@@ -1,6 +1,7 @@
 import type { Request,Response,NextFunction } from "express";
 import jwt from "jsonwebtoken"
 import { ENV } from "../utils/env.ts";
+import { prismaClient } from "../db.ts";
 
 declare global {
         namespace Express {
@@ -14,12 +15,10 @@ export interface TokenPayload {
         userId:number
 }
 
-export function requiredAuth(req:Request,res:Response,next:NextFunction):void{
+export async function requiredAuth(req:Request,res:Response,next:NextFunction):void{
 
         try {
-                const authHeader = req.headers.authorization
-
-                const token = typeof authHeader ==="string" && authHeader.startsWith('Bearer ')?authHeader.slice(7):undefined
+                const token = req.cookies[ENV.TOKEN_NAME as string]
 
                 if(!token){
                          res.status(401).json({error:"unauthorized"})
@@ -28,7 +27,14 @@ export function requiredAuth(req:Request,res:Response,next:NextFunction):void{
 
                 const payload = jwt.verify(token,ENV.JWT_SECRET as string) as TokenPayload
 
-                req.userId = payload.userId
+                const user  = await prismaClient.user.findUnique({where:{id:payload.userId}})
+
+                if(!user){
+                        res.status(401).json({message:'Unauthorized access. User not found.'})
+                        return
+                }
+
+                req.userId = user.id
 
                 next()
 

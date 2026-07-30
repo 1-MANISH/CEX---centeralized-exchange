@@ -14,11 +14,14 @@
     "@tanstack/react-table": "^8.21.3",
     "ag-charts-community": "^14.0.2",
     "ag-charts-react": "^14.0.2",
+    "axios": "^1.19.0",
     "lucide-react": "^1.28.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-hot-toast": "^2.6.0",
     "react-router": "^8.3.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

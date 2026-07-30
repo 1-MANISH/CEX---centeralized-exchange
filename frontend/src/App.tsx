@@ -5,9 +5,23 @@ import { SpotPage } from './pages/SpotPage';
 import { TradePage } from './pages/TradePage';
 import { ProfilePage } from './pages/ProfilePage';
 import {Routes,Route} from 'react-router'
+import { Toaster } from 'react-hot-toast';
+import { useAuthStore } from './store/useAuthStore';
+import { useEffect } from 'react';
+import PageLoader from './components/PageLoader';
+
 
 function App() {
 
+        const {checkAuth,isCheckingAuth,authUser} = useAuthStore()
+
+         useEffect(()=>{
+                checkAuth()
+         },[checkAuth])
+
+        if(isCheckingAuth){
+                return <PageLoader />
+        } 
 
 
         return (
@@ -21,6 +35,8 @@ function App() {
                                 <Route path="/trade" element={<TradePage />} />
                                 <Route path="/profile" element={<ProfilePage />} />
                         </Routes>
+
+                        <Toaster />
 
                 </div>
         )
