@@ -6,7 +6,7 @@ import { requiredAuth } from "../middleware/auth-middleware.ts";
 const authRouter = Router()
 
 authRouter.post('/signup',asyncHandler(signupHandler))
-authRouter.post('/signin',asyncHandler(signinHandler))
+authRouter.post('/login',asyncHandler(signinHandler))
 authRouter.get('/check',requiredAuth,asyncHandler(getMyProfile))
 authRouter.post('/logout',asyncHandler(logout))
 

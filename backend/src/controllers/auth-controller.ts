@@ -6,11 +6,14 @@ import { prismaClient } from "../db.ts";
 import { createToken } from "../utils/auth-token.ts";
 import { BALANCES } from "../index.ts";
 import { ENV } from "../utils/env.ts";
+import { MESSAGES, STATUS_CODE } from "../utils/constant.ts";
+import { sendError, sendSuccess } from "../utils/response.ts";
 
-function getUserId(req:Request):number{
-       if(!req.userId)  throw new Error("Missing authenticated user")
+function getUserId(req:Request):string{
+       if(!req.userId)  throw new Error(MESSAGES.NOT_AUTHORIZED as string)
        return req.userId 
 }
+
 
 
 async function signupHandler(
@@ -37,24 +40,15 @@ async function signupHandler(
                         }
                 })
 
-                BALANCES[user.id] = {USD:{available:0,locked:0},SOL:{available:0,locked:0},BTC:{available:0,locked:0}}
+                
+                // create token and set cookie
+                createToken({userId:user.id},res)
 
-                const token = createToken({
-                                userId:user.id
-                 },res)
+                sendSuccess(res,STATUS_CODE.CREATED as number,{userId:user.id,username:user.username,balance:null},MESSAGES.SIGNUP_SUCCESS as string)
 
-
-
-                res.status(201).json({
-                        message:'User created successfully',
-                        token,
-                        userId:user.id,
-                        username:user.username
-                })
         } catch (error) {
-                res.status(409).json({
-                        error:"user already exists"
-                })
+
+                sendError(res,STATUS_CODE.SERVER_ERROR as number,MESSAGES.USER_EXISTS as string, error?.message  ?? "Internal server error")
         }
 }
 
@@ -81,9 +75,7 @@ async function signinHandler(
                 })
 
                 if(!userExist){
-                        res.status(404).json({
-                                error:"user not found"
-                        })
+                        sendError(res,STATUS_CODE.NOT_FOUND as number,MESSAGES.USER_NOT_FOUND as string)
                         return
                 }
 
@@ -91,34 +83,30 @@ async function signinHandler(
                 const correctPassword = await bcrypt.compare(password,userExist.password)
 
                 if(!correctPassword){
-                        res.status(403).json({
-                                error:"incorrect password"
-                        })
+                        sendError(res,STATUS_CODE.FORBIDDEN as number,MESSAGES.INVALID_CREDENTIALS as string)
                         return
                 }
 
-                const token = createToken({
-                                userId:userExist.id
-                 },res)
+                // create token and set cookie
+                createToken({userId:userExist.id },res)
 
-                res.status(201).json({
-                        token,
-                        userId:userExist.id,
-                        username:userExist.username
-                })
+                sendSuccess(res,STATUS_CODE.OK as number,{userId:userExist.id,username:userExist.username,balance:BALANCES[userExist.id]??null},MESSAGES.LOGIN_SUCCESS as string)
         } catch (error) {
-                res.status(500).json({
-                        error:"internal server error"
-                })
+                sendError(res,STATUS_CODE.SERVER_ERROR as number,MESSAGES.USER_NOT_FOUND as string, error?.message  ?? "Internal server error")
         }
 }
 
 async function getMyProfile( req:Request,res:Response    ):Promise<void>{
-        const userId = getUserId(req) as number
+        const userId = getUserId(req) as string
 
         const user = await prismaClient.user.findUnique({where:{id:userId}})
 
-        res.status(200).json({user:user.username})
+        if(!user){
+                sendError(res,STATUS_CODE.NOT_FOUND as number,MESSAGES.USER_NOT_FOUND as string)
+                return
+        }
+
+        sendSuccess(res,STATUS_CODE.OK as number,{userId:user.id,username:user.username,balance:BALANCES[user.id]??null},MESSAGES.LOGIN_SUCCESS as string)
 }
 
 async function logout (req:Request,res:Response):Promise<void>{
@@ -126,13 +114,11 @@ async function logout (req:Request,res:Response):Promise<void>{
                 ENV.TOKEN_NAME as string,
                 "",
                 {
-                        httpOnly:true,
-                        secure:true,
-                        sameSite:"none",
                         maxAge:0
                 }
         )
-        res.status(200).json({message:"Logout successful"})
+
+        sendSuccess(res,STATUS_CODE.OK as number,{},MESSAGES.LOGOUT_SUCCESS as string)
 }
 
 export {

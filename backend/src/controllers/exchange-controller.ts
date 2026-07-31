@@ -1,14 +1,18 @@
 import type { Request, Response } from "express";
-import {depositBodySchema, orderBodySchema, stockBodySchema} from "../types/exchange-schema.ts"
+import { depositBodySchema, orderBodySchema, stockBodySchema } from "../types/exchange-schema.ts"
 import { processOrder } from "../utils/engine/processOrder.ts";
 import { BALANCES, ORDERBOOK } from "../index.ts";
 import { prismaClient } from "../db.ts";
-import { Matrix } from "../utils/interfaces.ts";
-import {helper} from "../utils/metrix.ts"
+import type { Matrix } from "../utils/interfaces.ts";
+import { helper } from "../utils/matrix.ts"
 import { ENV } from "../utils/env.ts";
-function getUserId(req:Request):number{
-       if(!req.userId)  throw new Error("Missing authenticated user")
-       return req.userId 
+import { MESSAGES, STATUS_CODE } from "../utils/constant.ts";
+import { sendError, sendSuccess } from "../utils/response.ts";
+import { sendValidationError } from "../utils/validation.ts";
+
+function getUserId(req: Request): string {
+        if (!req.userId) throw new Error(MESSAGES.NOT_AUTHORIZED as string)
+        return req.userId
 }
 
 /*
@@ -28,29 +32,74 @@ function getUserId(req:Request):number{
 10. return response - {message:"order placed",filledQuantity:filledQuantity,remainingQuantity:remainingQuantity}
 */
 
-async function createOrder(req:Request,res:Response):Promise<void> {
-        
-        const userId = getUserId(req) as number
+async function createOrder(req: Request, res: Response): Promise<void> {
+
+        const userId = getUserId(req) as string
 
         const parsedBody = orderBodySchema.safeParse(req.body)
 
-        if(!parsedBody.success){
-                res.status(400).json(parsedBody.error)
+        if (!parsedBody.success) {
+               sendValidationError(res, parsedBody.error)
                 return
         }
 
         let order = parsedBody.data
-        
-        const result = await processOrder({...order,userId})
 
-        res.status(201).json({
-               result,
-               BALANCES,
-               ORDERBOOK
-        })
+        /*
+        1 balance check & lock funds - > error(not enough funds)
+        2. match logic (if order is not able to full fill then sit on orderbook, otherwise fill the order)
+        3. if matched then update the balance- and order and create fills/trade to save history
+        4. response
+        */
+        const result = await processOrder({ ...order, userId }) //{message:"",filledQuantity:0,remainingQuantity:0}
+
+        sendSuccess(res, STATUS_CODE.CREATED as number, result, MESSAGES.ORDER_PLACED as string)
 
 }
+async function cancelOrder(req: Request, res: Response): Promise<void> {
+        const userId = getUserId(req) as string
+        const orderId = req.params.orderId as string
 
+        const order = await prismaClient.order.findFirst({
+                where: { id: orderId },
+                include: { fills: true, user: true }
+        })
+
+        if (order?.userId !== userId) {
+                sendError(res, STATUS_CODE.UNAUTHORIZED as number, MESSAGES.NOT_AUTHORIZED as string)
+                return
+        }
+
+        //  unlock funds and remove this order from order book
+        // order may be partially filled
+        const remainingQuantity = order.remainingQuantity
+
+        const book = ORDERBOOK[order.market]
+        if(!book){
+               sendError(res, STATUS_CODE.SERVER_ERROR as number, MESSAGES.SOME_THING_WENT_WRONG as string)
+        }
+
+        // need to think of
+        if (order.side === "buy") {
+                const refund = remainingQuantity* order.price
+                BALANCES[userId].USD.locked -=refund
+                BALANCES[userId].USD.available += refund
+                book.bids = book.bids.filter((bid) => bid.id !== order.id)
+        } else {
+                BALANCES[userId][order.market].locked -= remainingQuantity
+                BALANCES[userId][order.market].available += remainingQuantity
+                book.asks = book.asks.filter((ask) => ask.id !== order.id)
+        }
+
+        const updatedOrder = await prismaClient.order.update({
+                where: { id: orderId },
+                data: {
+                        status: "cancelled"
+                }
+        })
+
+        sendSuccess(res, STATUS_CODE.OK as number, {order:updatedOrder}, MESSAGES.ORDER_CANCELLED as string)
+}
 // get order details
 /*
 return {
@@ -61,196 +110,187 @@ return {
         orderStatus:"open" | "close" | "cancelled"
 }
 */
-async function getOrder(req:Request,res:Response):Promise<void> {
-        const userId = getUserId(req) as number
-        const orderId = Number(req.params.orderId )as number
+async function getOrder(req: Request, res: Response): Promise<void> {
+        const userId = getUserId(req) as string
+        const orderId = req.params.orderId as string
 
-        if(!BALANCES[userId]) throw new Error("User not found")
-
-        const order = await prismaClient.order.findFirst({
-                where:{id:orderId},
-                include:{fills:true,user:true}
-        })
-
-        res.status(200).json({
-                orderInformation:{
-                        id:order?.id,
-                        userId:order?.userId,
-                        side:order?.side,
-                        type:order?.type,
-                        market:order?.market,
-                        price:order?.price,
-                        quantity:order?.quantity,
-                        createdAt:order?.createdAt
-                },
-                fillHistory:order?.fills,
-                filledQuantity:order?.filledQuantity,
-                remainingQuantity:order?.remainingQuantity,
-                orderStatus:order?.status
-        })
-}
-async function cancelOrder(req:Request,res:Response):Promise<void> {
-        const userId = getUserId(req) as number
-        const orderId = Number(req.params.orderId )as number
-
-        const order = await prismaClient.order.findFirst({
-                where:{id:orderId},
-                include:{fills:true,user:true}
-        })
-
-        if(order?.userId !== userId) throw new Error("Unauthorized")
-
-        //  unlock funds and remove this order from order book
-       // order may be partially filled
-       const filledQuantity = order.filledQuantity
-       const remainingQuantity = order.remainingQuantity
-
-      // need to think of
-        if(order.side ==="buy"){
-                BALANCES[userId].USD.locked -= filledQuantity*order.price
-                BALANCES[userId].USD.available += remainingQuantity*order.price
-                ORDERBOOK[order.market].bids = ORDERBOOK[order.market].bids.filter((bid) => bid.price !== order.price)
-        }else{
-                BALANCES[userId][order.market].locked -= remainingQuantity
-                BALANCES[userId][order.market].available += filledQuantity
-                ORDERBOOK[order.market].asks = ORDERBOOK[order.market].asks.filter((ask) => ask.price !== order.price)
+        if(!orderId){
+                sendError(res, STATUS_CODE.BAD_REQUEST as number, MESSAGES.MISSING_FIELD as string)
+                return
         }
-       
-        await prismaClient.order.update({
-                where:{id:orderId},
-                data:{
-                        status:"close"
-                }
+
+        const order = await prismaClient.order.findFirst({
+                where: { id: orderId },
+                include: { fills: true, user: true }
         })
 
-        res.status(200).json({
-                message:"Order cancelled"
-        })
+        if(!order){
+                sendError(res, STATUS_CODE.NOT_FOUND as number, MESSAGES.ORDER_NOT_FOUND as string)
+                return
+        }
+        if( order.userId !== userId){
+                sendError(res, STATUS_CODE.UNAUTHORIZED as number, MESSAGES.NOT_AUTHORIZED as string)
+                return
+        }
+
+        const orderData = {
+                id: order?.id,
+                userId: order?.userId,
+                side: order?.side,
+                type: order?.type,
+                market: order?.market,
+                price: order?.price,
+                quantity: order?.quantity,
+                createdAt: order?.createdAt,
+                fillHistory: order?.fills,
+                filledQuantity: order?.filledQuantity,
+                remainingQuantity: order?.remainingQuantity,
+                orderStatus: order?.status
+        }
+
+        sendSuccess(res, STATUS_CODE.OK as number, {order:orderData}, MESSAGES.FETCHED as string)
 }
 
-async function getAllOrder(req:Request,res:Response):Promise<void> {
-        const userId = getUserId(req) as number
+async function getAllOrder(req: Request, res: Response): Promise<void> {
+        const userId = getUserId(req) as string
         const orders = await prismaClient.order.findMany({
-                where:{userId},
-                orderBy:{createdAt:"desc"}
-        })
-        res.status(200).json(orders)
-}
-
-async function getAllFills(req:Request,res:Response):Promise<void> {
-        const userId = getUserId(req) as number
-        const symbol = req.params.symbol as string
-        const fills = await prismaClient.fill.findMany({
-                where:{userId,market:symbol},
-                orderBy:{createdAt:"desc"}
-        })
-        res.status(200).json(fills)
-}
-async function getDepth(req:Request,res:Response):Promise<void> {
-        const symbol = req.params.symbol as string
-
-        const outputBids = ORDERBOOK[symbol]?.bids.map((bid)=>{
-                return {
-                        price:bid.price,
-                        quantity:bid.quantity
-                }
-        })
-
-        const outputAsks = ORDERBOOK[symbol]?.asks.map((ask)=>{
-                return {
-                        price:ask.price,
-                        quantity:ask.quantity
-                }
+                where: { userId },
+                orderBy: { createdAt: "desc" }
         })
         
+        sendSuccess(res, STATUS_CODE.OK as number, {orders}, MESSAGES.FETCHED as string)
+}
 
-
-        res.status(200).json({
-                bids:outputBids,
-                asks:outputAsks,
-                lastTradePrice:ORDERBOOK[symbol].lastTradePrice
+async function getAllFills(req: Request, res: Response): Promise<void> {
+        const userId = getUserId(req) as string
+        const symbol = req.params.symbol as string
+        if(!symbol){
+                sendError(res, STATUS_CODE.BAD_REQUEST as number, MESSAGES.MISSING_FIELD as string)
+        }
+        const fills = await prismaClient.fill.findMany({
+                where: { userId, market: symbol },
+                orderBy: { createdAt: "desc" }
         })
 
+        sendSuccess(res, STATUS_CODE.OK as number, {fills}, MESSAGES.FETCHED as string)
+}
+async function getDepth(req: Request, res: Response): Promise<void> {
+        const symbol = req.params.symbol as string
+
+        if(!ORDERBOOK[symbol]){
+                sendError(res, STATUS_CODE.NOT_FOUND as number, MESSAGES.MARKET_NOT_FOUND as string)
+                return
+        }
+
+        const outputBids = ORDERBOOK[symbol]?.bids.map((bid) => {
+                return {
+                        price: bid.price,
+                        quantity: bid.quantity
+                }
+        })
+
+        const outputAsks = ORDERBOOK[symbol]?.asks.map((ask) => {
+                return {
+                        price: ask.price,
+                        quantity: ask.quantity
+                }
+        })
+
+        const data = {
+                bids: outputBids,
+                asks: outputAsks,
+                lastTradePrice: ORDERBOOK[symbol].lastTradePrice
+        }
+
+        sendSuccess(res, STATUS_CODE.OK as number, {depth:data}, MESSAGES.FETCHED as string)
+
 }
 
-async function getBalance(req:Request,res:Response):Promise<void> {
-        const userId = getUserId(req) as number
-        res.status(200).json(BALANCES[userId])
+async function getBalance(req: Request, res: Response): Promise<void> {
+
+        const userId = getUserId(req) as string
+      
+        sendSuccess(res, STATUS_CODE.OK as number, { balance: BALANCES[userId] }, MESSAGES.FETCHED as string)
 }
 
-async function depositAsset(req:Request,res:Response):Promise<void> {
-         const userId = getUserId(req) as number
 
-         const parsedBody  = depositBodySchema.safeParse(req.body)
+async function depositAsset(req: Request, res: Response): Promise<void> {
+        const userId = getUserId(req) as string
 
-         if(!parsedBody.success){
-                 res.status(400).json(parsedBody.error)
-                 return
-         }
+        const parsedBody = depositBodySchema.safeParse(req.body)
 
-        const {symbol,quantity} = parsedBody.data
+        if (!parsedBody.success) {
+                sendValidationError(res, parsedBody.error)
+                return
+        }
 
-        if(!BALANCES[userId]) BALANCES[userId] = {}
+        const { symbol, quantity } = parsedBody.data
 
-         if(!BALANCES[userId][symbol]) BALANCES[userId][symbol] = {available:0,locked:0}
+        if (!BALANCES[userId]) BALANCES[userId] = {}
+
+        if (!BALANCES[userId][symbol]) BALANCES[userId][symbol] = { available: 0, locked: 0 }
         BALANCES[userId][symbol].available += quantity
 
-        res.status(200).json({
-                message:"Asset Deposited",
-                BALANCES
-        })
+
+        sendSuccess(res, STATUS_CODE.OK as number, { balance: BALANCES[userId] }, MESSAGES.ASSET_DEPOSITED as string)
 }
 
 // only admin can create a stock
-async function createAStock(req:Request,res:Response):Promise<void> {
-        
-        const userId = getUserId(req) as number
+async function createAStock(req: Request, res: Response): Promise<void> {
 
-        const user = await prismaClient.user.findUnique({where:{id:userId}})
-        if(user?.username!=ENV.ADMIN_USERNAME && user?.password!=ENV.ADMIN_PASSWORD){
-                res.status(401).json({message:"Unauthorized: Only admin can create a stock"})
+        const userId = getUserId(req)
+
+        const user = await prismaClient.user.findUnique({ where: { id: userId } })
+
+        if (!user) {
+                sendError(res, STATUS_CODE.UNAUTHORIZED as number, MESSAGES.NOT_AUTHORIZED as string)
                 return
         }
-        
+
+        if (user.username != ENV.ADMIN_USERNAME && user.password != ENV.ADMIN_PASSWORD) {
+                sendError(res, STATUS_CODE.UNAUTHORIZED as number, MESSAGES.ADMIN_UNAUTHORIZED as string)
+                return
+        }
+
         const parsedBody = stockBodySchema.safeParse(req.body)
 
-        if(!parsedBody.success){
-                res.status(400).json(parsedBody.error)
+        if (!parsedBody.success) {
+                sendValidationError(res, parsedBody.error)
                 return
         }
 
-        const stock = await prismaClient.stock.create({data:parsedBody.data})
+        // only unique symbol can be created
+        const stock = await prismaClient.stock.create({ data: parsedBody.data })
 
-        ORDERBOOK[stock.symbol] = {bids:[],asks:[],lastTradePrice:0}
+        if (!ORDERBOOK[stock.symbol])
+                ORDERBOOK[stock.symbol] = { bids: [], asks: [], lastTradePrice: 0 }
 
-        res.status(200).json({
-                message:"Stock created",
-                stock
-        })
+        sendSuccess(res, STATUS_CODE.CREATED as number, stock, MESSAGES.STOCK_CREATED as string)
 }
 
 
 
-async function getAllStocksMatrix(req:Request,res:Response):Promise<void> {
-        
-        const userId = getUserId(req) as number
+async function getAllStocksMatrix(req: Request, res: Response): Promise<void> {
 
-        const stocks :Matrix[]  = []
-        // {SOL:{currentPrice,volume,change24h}}
+        const userId = getUserId(req) as string
+
+        const stocks: Matrix[] = []
+        // {SOL:{currentPrice,volume24,change24h}}
 
         const sts = await prismaClient.stock.findMany()
 
-        for(const st of sts){
+        for (const st of sts) {
                 const matrix = await helper(st.symbol)
                 stocks.push(matrix)
         }
 
-        res.status(200).json(stocks)
-        
+
+        sendSuccess(res, STATUS_CODE.OK as number, {stocks}, MESSAGES.FETCHED as string)
+
 }
 
 
-export  {
+export {
         createOrder,
         getOrder,
         depositAsset,

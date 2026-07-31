@@ -1,16 +1,21 @@
 import { BALANCES } from "../..";
-
+import type {  UserOrder } from "../interfaces.ts"
 import { estimateMarketBuyCost } from "./estimateMarketBuyCost";
 
-export  function lockFunds(order:any){
+
+export  function lockFunds(order:UserOrder){
 
 
         if(order.side ==="buy"){
                 let amountNeeded = 0
                 if(order.type === "limit")amountNeeded = order.price * order.quantity
-                else amountNeeded = estimateMarketBuyCost(order) // estimate market buy cost which is cheapest ask - 
+                else amountNeeded = estimateMarketBuyCost(order) // just buy me - estimate market buy cost which is cheapest ask - 
+                // for market order  - buy may be partially filled
 
                 const userBalance =  BALANCES[order.userId]?.USD
+
+                if(!userBalance) throw new Error("Locking funds failed : Insufficient funds")
+                        
                 // bro u can't have enough funds
                 if(userBalance.available < amountNeeded) throw new Error("Locking funds failed : Insufficient funds")
 

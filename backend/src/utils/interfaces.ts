@@ -5,16 +5,24 @@ type Balance = {
         locked:number
 }
 
-type Status = "open" | "cancelled" | "close"
+type Status = "open" | "cancelled" | "closed" | "partial_filled"
 
 type Type = "market" | "limit"
 
 type Side = "buy" | "sell"
 
+interface UserOrder{
+        userId:string,
+        type:Type,
+        side:Side,
+        market:string,
+        quantity:number
+        price?:number|null,
+}
 
  interface Order {
-    id: number;
-    userId: number;
+    id: string;
+    userId: string;
     side: Side;
     type: Type;
     market: string;
@@ -26,6 +34,7 @@ type Side = "buy" | "sell"
     createdAt: Date;
 }
 
+
 interface Matrix {
         symbol:string,
         currentPrice:number,
@@ -33,5 +42,10 @@ interface Matrix {
         change24h:number
 }
 
+interface TokenPayload {
+        userId:string;
+}
 
-export type {Order, Status, Type, Side , Balance, Matrix}
+
+
+export type {UserOrder,Order, Status, Type, Side , Balance, Matrix, TokenPayload}

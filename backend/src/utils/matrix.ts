@@ -1,6 +1,7 @@
 import { prismaClient } from "../db"
 
  export async function helper(symbol:string){
+        
         const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
         const [ latestTrade,trade24hAgo,fills] = await Promise.all([

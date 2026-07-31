@@ -8,23 +8,19 @@ import express , {
 import { ENV } from "./utils/env.ts"
 import appRouter from "./routes/index.ts"
 import {  type Balance, type Order } from "./utils/interfaces.ts"
+import { STATUS_CODE } from "./utils/constant.ts"
+import { sendError } from "./utils/response.ts"
 
 // in-memory state
-export const BALANCES : Record<number,Record<string,Balance>> = {
-        // 1:{
-        //         USD:{available:0,locked:0} ,
-        //         SOL:{available:0,locked:0} 
-        // }
-}//balances = {userId:{USD:{available:0,locked:0},SOL:{available:0,locked:0}}}
+//balances = {userId:{USD:{available:0,locked:0},SOL:{available:0,locked:0}}}
+export const BALANCES : Record<string,Record<string,Balance>> = {}
 
 /*
 bids:[] // highest price first
 asks:[] // lowest price first
+orderbook = {ETH:{bids:[] ,asks:[] ,lastTradePrice:0}}
 */
-export const ORDERBOOK:Record<string,{bids:Order[],asks:Order[],lastTradePrice:number}> = {
-        // ETH:{bids:[] ,asks:[] ,lastTradePrice:0},
-        // SOL:{bids:[] ,asks:[] ,lastTradePrice:0}
-}
+export const ORDERBOOK:Record<string,{bids:Order[],asks:Order[],lastTradePrice:number}> = {}
 
 
 const app = express()
@@ -49,11 +45,8 @@ app.use("/",appRouter)
 
 app.use(
         (error:unknown , _req:Request,res:Response,_next:NextFunction)=>{
-                // console.error(error)
 
-                res.status(500).json({
-                        error:error instanceof Error ? error.message : "Internal server error"
-                })
+                sendError(res,STATUS_CODE.SERVER_ERROR as number, "Internal server error",error instanceof Error ? error.message:"")
         }
 )
 

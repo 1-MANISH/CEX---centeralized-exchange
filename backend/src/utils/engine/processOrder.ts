@@ -1,11 +1,14 @@
 
 import { prismaClient } from "../../db.ts"
+import type {  UserOrder } from "../interfaces.ts"
 import { lockFunds } from "./lockFunds.ts"
 import { matchBuy } from "./matchBuy.ts"
 import { matchSell } from "./matchSell.ts"
 import { validateOrder } from "./validateOrder.ts"
 
-export async function processOrder(order:any){
+
+
+export async function processOrder(order:UserOrder){
 
         try {
 
@@ -15,8 +18,10 @@ export async function processOrder(order:any){
                 // locking funds if available otherwise throwing error to the user
                 lockFunds(order)
 
+                // now order may be full filled or partially filled
+
                 // we are sure that order can seat into the orderbook and can make order into database
-                let newOrder = await prismaClient.order.create({
+                let dbOrder =   await prismaClient.order.create({
                         data:{
                                 ...order,
                                 status:"open",
@@ -25,18 +30,37 @@ export async function processOrder(order:any){
                         }
                 })
 
-                const fills = order.side ==="buy" ? matchBuy(newOrder) : matchSell(newOrder)
+                const { fills,updatedOrders,lastTradePrice} = order.side ==="buy" ? matchBuy(dbOrder) : matchSell(dbOrder)
 
-                order = await prismaClient.order.findFirst({
-                        where:{id:newOrder.id},
+                // persist the trades and orders in the database
+               await prismaClient.$transaction(async (tx) => {
+                       
+                        await tx.fill.createMany({
+                                data:fills
+                        });
+
+                        await Promise.all(updatedOrders.map(order => {
+                                return tx.order.update({
+                                        where:{id:order.id },
+                                        data:{
+                                                filledQuantity:order.filledQuantity,
+                                                remainingQuantity:order.remainingQuantity,
+                                                status:order.status
+                                        }
+                                })
+                        }))
+               })
+
+                let ourOrder = await prismaClient.order.findFirst({
+                        where:{id:dbOrder.id},
                 })
                 return {
-                        message:"order placed",
-                        filledQuantity:order.filledQuantity,
-                        remainingQuantity:order.remainingQuantity,
+                        filledQuantity:ourOrder?.filledQuantity,
+                        remainingQuantity:ourOrder?.remainingQuantity,
+                        lastTradePrice
                 }
         } catch (error) {
-                throw new Error("Error in processing order"+error)
+                throw new Error("Error in processing order" + (error?.message ?? error))
         }
 }
 /*
@@ -51,10 +75,9 @@ MatchingEngine
 ├── matchSell()
 
 ├── executeTrade()
-
-├── unlockFunds()
-
-├── updateBalances()
+        -> uppdate order book
+        -> update balance
+        ->return trade as plan js object
 
 ├── saveOrder()
 

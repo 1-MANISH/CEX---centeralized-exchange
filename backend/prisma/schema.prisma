@@ -15,8 +15,9 @@ datasource db {
 
 enum Status {
         open
-        close
+        closed
         cancelled
+        partial_filled
 }
 enum Type {
         market
@@ -30,7 +31,7 @@ enum Side {
 
 
 model User {
-        id                     Int             @default(autoincrement()) @id
+        id                     String             @default(uuid()) @id
         username        String         @unique
         password        String
         orders            Order[]
@@ -38,15 +39,15 @@ model User {
 }
 
 model Stock{
-        id              Int     @default(autoincrement()) @id
+        id              String     @default(uuid()) @id
         name         String @unique
         symbol       String @unique
 }
 
 
 model Order{
-        id                      Int             @default(autoincrement()) @id
-        userId              Int
+        id                      String             @default(uuid()) @id
+        userId              String
         market             String
         price                Int?
         quantity           Int
@@ -62,14 +63,14 @@ model Order{
 
 //Trades
 model Fill{
-        id                              Int                     @default(autoincrement()) @id
+        id                              String                     @default(uuid()) @id
         quantity                    Int                      
         side                          Side
         type                         Type
-        userId                     Int
-        price                        Int?
+        userId                     String
+        price                        Int
         market                    String
-        originalOrderID      Int
+        originalOrderID      String
         createdAt               DateTime @default(now())
         user    User    @relation(fields: [userId],references: [id])
         original  Order  @relation(fields:[originalOrderID],references: [id])

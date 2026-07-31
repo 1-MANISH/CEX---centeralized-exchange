@@ -38,6 +38,7 @@ export const useAuthStore = create((set,get)=>({
         login:async(data:{username:string,password:string})=>{
                 try {
                         set({isLoginIn:true})
+                        console.log("YHAA AA GYE"+data.username)
                         const response = await axiosInstance.post("/auth/login",data)
                         set({authUser:response.data})
                         toast.success("Login successful")
@@ -45,6 +46,7 @@ export const useAuthStore = create((set,get)=>({
                         // socket connection
                 } catch (error:any) {
                         set({authUser:null})
+                        console.log("YHAA LOGIN ME ERROR"+error)
                         toast.error(error.response.data.message ?? "Failed to login")
                 }finally{
                         set({isLoginIn:false})

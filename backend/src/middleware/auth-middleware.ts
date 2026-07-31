@@ -1,45 +1,46 @@
-import type { Request,Response,NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken"
 import { ENV } from "../utils/env.ts";
 import { prismaClient } from "../db.ts";
+import type { TokenPayload } from "../utils/interfaces.ts";
+import { sendError } from "../utils/response.ts";
+import { MESSAGES, STATUS_CODE } from "../utils/constant.ts";
 
 declare global {
         namespace Express {
                 interface Request {
-                        userId?: number;
+                        userId?: string;
                 }
         }
 }
 
-export interface TokenPayload {
-        userId:number
-}
 
-export async function requiredAuth(req:Request,res:Response,next:NextFunction):void{
+
+export async function requiredAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
 
         try {
-                const token = req.cookies[ENV.TOKEN_NAME as string]
+                const token = req.cookies[ENV.TOKEN_NAME]// from cookies - frontend
 
-                if(!token){
-                         res.status(401).json({error:"unauthorized"})
-                         return
+                if (!token) {
+                        sendError(res, STATUS_CODE.UNAUTHORIZED as number, MESSAGES.TOKEN_MISSING as string)
+                        return
                 }
 
-                const payload = jwt.verify(token,ENV.JWT_SECRET as string) as TokenPayload
+                const payload = jwt.verify(token, ENV.JWT_SECRET) as TokenPayload
 
-                const user  = await prismaClient.user.findUnique({where:{id:payload.userId}})
+                const { userId } = payload
+                const user = await prismaClient.user.findUnique({ where: { id: userId } })
 
-                if(!user){
-                        res.status(401).json({message:'Unauthorized access. User not found.'})
+                if (!user) {
+                        sendError(res, STATUS_CODE.UNAUTHORIZED as number, MESSAGES.TOKEN_INVALID as string)
                         return
                 }
 
                 req.userId = user.id
-
                 next()
 
         } catch (error) {
-                res.status(401).json({error:"Invalid auth token"})
+                sendError(res, STATUS_CODE.SERVER_ERROR as number, error?.message  ?? error as string)
         }
 
 }

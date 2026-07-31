@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/useAuthStore';
 import { useEffect } from 'react';
 import PageLoader from './components/PageLoader';
+import { LoginSignup } from './pages/LoginSignup';
 
 
 function App() {
@@ -31,6 +32,8 @@ function App() {
 
                         <Routes>
                                 <Route path="/" element={<LandingPage />} />
+                                <Route path="/login" element={<LoginSignup />} />
+                                <Route path="/signup" element={<LoginSignup />} />
                                 <Route path="/spot" element={<SpotPage />} />
                                 <Route path="/trade" element={<TradePage />} />
                                 <Route path="/profile" element={<ProfilePage />} />

@@ -5,6 +5,7 @@ export const stockParseSchema = z.object({
         symbol:z.string().trim().min(1,"symbol is required")
 
 })
+
 export const orderParamSchema = z.object({
         orderId:z.string().trim().min(1,"orderId is required")
 })
@@ -27,12 +28,13 @@ export const orderBodySchema = z.discriminatedUnion("type",[
         })
 ])
 
+
 export const depositBodySchema = z.object({
-        symbol:z.string().trim().min(1,"symbol is required"),
+        symbol:z.string().trim().min(2,"Symbol is required"),
         quantity:z.number().positive("Quantity must be greater than 0")
 })
 
 export const stockBodySchema = z.object({
-        name:z.string().trim().min(2,"symbol name is required"),
-        symbol:z.string().trim().min(1,"symbol is required")
+        name:z.string().trim().min(2,"Symbol name  is required"),
+        symbol:z.string().trim().min(2,"Symbol is required")
 })
