@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createAStock, createOrder, cancelOrder, depositAsset, getAllFills, getAllOrder, getAllStocksMatrix, getBalance, getDepth, getOrder } from "../controllers/exchange-controller.ts";
+import { createAStock, createOrder, cancelOrder, depositAsset, getAllFills, getAllOrder, getAllStocksMatrix, getBalance, getDepth, getOrder, getOrderFills } from "../controllers/exchange-controller.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { requiredAuth } from "../middleware/auth-middleware.ts";
 
@@ -10,7 +10,8 @@ exchangeRouter.post('/deposit',requiredAuth,asyncHandler(depositAsset))
 
 // create a new stock
 exchangeRouter.post("/stock", requiredAuth,asyncHandler(createAStock))
-exchangeRouter.get("/stocks/matrix", requiredAuth,asyncHandler(getAllStocksMatrix))
+
+
 // --- Orders ---
 
 /*
@@ -69,10 +70,13 @@ exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
 
 // --- Market data ---
 // get orderbook - app.get('/depth/:symbol',(req,res)=>{})
-exchangeRouter.get("/depth/:symbol",requiredAuth,asyncHandler(getDepth))
+exchangeRouter.get("/depth/:symbol",asyncHandler(getDepth))
 
-exchangeRouter.get("/fills/:symbol",requiredAuth,asyncHandler(getAllFills))
+exchangeRouter.get("/stocks/matrix",asyncHandler(getAllStocksMatrix))
 
+
+exchangeRouter.get("/fills",requiredAuth,asyncHandler(getAllFills))
+exchangeRouter.get("/fills/:orderId/",requiredAuth,asyncHandler(getOrderFills))
 exchangeRouter.get("/balance", requiredAuth,asyncHandler(getBalance))
 
 

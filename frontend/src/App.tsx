@@ -10,6 +10,9 @@ import { useAuthStore } from './store/useAuthStore';
 import { useEffect } from 'react';
 import PageLoader from './components/PageLoader';
 import { LoginSignup } from './pages/LoginSignup';
+import { Protected } from './components/Protected';
+import { NotProtected } from './components/NotProtected';
+
 
 
 function App() {
@@ -32,11 +35,11 @@ function App() {
 
                         <Routes>
                                 <Route path="/" element={<LandingPage />} />
-                                <Route path="/login" element={<LoginSignup />} />
-                                <Route path="/signup" element={<LoginSignup />} />
-                                <Route path="/spot" element={<SpotPage />} />
-                                <Route path="/trade" element={<TradePage />} />
-                                <Route path="/profile" element={<ProfilePage />} />
+                                <Route path="/spot" element={<SpotPage />}/>
+                                <Route path="/trade/:symbol" element={<TradePage />} />
+                                <Route path="/login" element={<NotProtected><LoginSignup /></NotProtected>} />
+                                <Route path="/signup" element={<NotProtected><LoginSignup /></NotProtected>} />
+                                <Route path="/profile" element={<Protected><ProfilePage /> </Protected>} />
                         </Routes>
 
                         <Toaster />

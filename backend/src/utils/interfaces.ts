@@ -36,6 +36,7 @@ interface UserOrder{
 
 
 interface Matrix {
+        name:string,
         symbol:string,
         currentPrice:number,
         volume24h:number,

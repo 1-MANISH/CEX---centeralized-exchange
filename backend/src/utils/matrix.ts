@@ -1,6 +1,6 @@
 import { prismaClient } from "../db"
 
- export async function helper(symbol:string){
+ export async function helper(symbol:string,name:string){
         
         const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
@@ -46,6 +46,7 @@ import { prismaClient } from "../db"
         const previousPrice = trade24hAgo?.price ?? currentPrice
         const change24h =previousPrice === 0? 0: ((currentPrice - previousPrice) / previousPrice) * 100
         return {
+                name,
                 symbol,
                 currentPrice,
                 volume24h: volume,

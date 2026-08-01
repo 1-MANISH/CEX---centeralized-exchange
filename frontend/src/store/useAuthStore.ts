@@ -8,15 +8,17 @@ export const useAuthStore = create((set,get)=>({
         isCheckingAuth:true,
         isSigningUp:false,
         isLoginIn:false,
+        isLoggedIn:false,
 
         checkAuth:async()=>{
                 try {
                         const response = await axiosInstance.get("/auth/check")
-                        set({authUser:response.data})
+                        console.log("YHAA CHECK AUTH ME AAYA",response.data.data)
+                        set({authUser:response.data.data,isLoggedIn:true})
                         
                         // socket connection
                 } catch (error) {
-                        set({authUser:null})
+                        set({authUser:null,isLoggedIn:false})
                 }finally{
                         set({isCheckingAuth:false})
                 }
@@ -25,11 +27,11 @@ export const useAuthStore = create((set,get)=>({
                 try {
                         set({isSigningUp:true})
                         const response = await axiosInstance.post("/auth/signup",data)
-                        set({authUser:response.data})
+                        set({authUser:response.data.data,isLoggedIn:true})
                         toast.success("Account created successful")
                         // socket connection
                 } catch (error:any) {
-                        set({authUser:null})
+                        set({authUser:null,isLoggedIn:false})
                         toast.error(error?.response?.data?.message ?? "Failed to signup")
                 }finally{
                         set({isSigningUp:false})
@@ -38,14 +40,14 @@ export const useAuthStore = create((set,get)=>({
         login:async(data:{username:string,password:string})=>{
                 try {
                         set({isLoginIn:true})
-                        console.log("YHAA AA GYE"+data.username)
+                 
                         const response = await axiosInstance.post("/auth/login",data)
-                        set({authUser:response.data})
+                        set({authUser:response.data.data,isLoggedIn:true})
                         toast.success("Login successful")
 
                         // socket connection
                 } catch (error:any) {
-                        set({authUser:null})
+                        set({authUser:null,isLoggedIn:false})
                         console.log("YHAA LOGIN ME ERROR"+error)
                         toast.error(error.response.data.message ?? "Failed to login")
                 }finally{

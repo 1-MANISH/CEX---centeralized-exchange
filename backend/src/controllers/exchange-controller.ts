@@ -163,16 +163,24 @@ async function getAllOrder(req: Request, res: Response): Promise<void> {
 
 async function getAllFills(req: Request, res: Response): Promise<void> {
         const userId = getUserId(req) as string
-        const symbol = req.params.symbol as string
-        if(!symbol){
-                sendError(res, STATUS_CODE.BAD_REQUEST as number, MESSAGES.MISSING_FIELD as string)
-        }
+
         const fills = await prismaClient.fill.findMany({
-                where: { userId, market: symbol },
+                where: { userId },
                 orderBy: { createdAt: "desc" }
         })
 
         sendSuccess(res, STATUS_CODE.OK as number, {fills}, MESSAGES.FETCHED as string)
+}
+async function getOrderFills(req: Request, res: Response): Promise<void> {
+        const userId = getUserId(req) as string
+        const orderId = req.params.orderId as string
+
+        const orderFills = await prismaClient.fill.findMany({
+                where: { id:orderId,userId },
+                orderBy: { createdAt: "desc" }
+        })
+
+        sendSuccess(res, STATUS_CODE.OK as number, {orderFills}, MESSAGES.FETCHED as string)
 }
 async function getDepth(req: Request, res: Response): Promise<void> {
         const symbol = req.params.symbol as string
@@ -272,7 +280,6 @@ async function createAStock(req: Request, res: Response): Promise<void> {
 
 async function getAllStocksMatrix(req: Request, res: Response): Promise<void> {
 
-        const userId = getUserId(req) as string
 
         const stocks: Matrix[] = []
         // {SOL:{currentPrice,volume24,change24h}}
@@ -280,7 +287,7 @@ async function getAllStocksMatrix(req: Request, res: Response): Promise<void> {
         const sts = await prismaClient.stock.findMany()
 
         for (const st of sts) {
-                const matrix = await helper(st.symbol)
+                const matrix = await helper(st.symbol,st.name)
                 stocks.push(matrix)
         }
 
@@ -300,5 +307,6 @@ export {
         getAllFills,
         getAllStocksMatrix,
         createAStock,
-        cancelOrder
+        cancelOrder,
+        getOrderFills
 }
