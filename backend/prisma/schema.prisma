@@ -12,10 +12,12 @@ datasource db {
         provider = "postgresql"
 }
 
+
 enum Status {
-        close
         open
+        closed
         cancelled
+        partial_filled
 }
 enum Type {
         market
@@ -26,8 +28,10 @@ enum Side {
         sell 
 }
 
+
+
 model User {
-        id                     Int             @default(autoincrement()) @id
+        id                     String             @default(uuid()) @id
         username        String         @unique
         password        String
         orders            Order[]
@@ -35,42 +39,39 @@ model User {
 }
 
 model Stock{
-        id              Int     @default(autoincrement()) @id
+        id              String     @default(uuid()) @id
         name         String @unique
         symbol       String @unique
-        fills           Fill[]
-        orders      Order[]
 }
 
 
 model Order{
-        id                      Int             @default(autoincrement()) @id
-        userId              Int
-        marketId          Int
-        price                Int
+        id                      String             @default(uuid()) @id
+        userId              String
+        market             String
+        price                Int?
         quantity           Int
         type                Type 
         side                 Side
         filledQuantity Int
-        status             Status
+        remainingQuantity Int
+        status             Status      
         createdAt       DateTime @default(now())
         user     User    @relation(fields: [userId],references: [id])
-        market Stock  @relation(fields: [marketId],references: [id])
         fills    Fill[]
 }
 
-
+//Trades
 model Fill{
-        id                              Int                     @default(autoincrement()) @id
+        id                              String                     @default(uuid()) @id
         quantity                    Int                      
         side                          Side
         type                         Type
-        userId                     Int
+        userId                     String
         price                        Int
-        marketId                 Int
-        originalOrderID      Int
+        market                    String
+        originalOrderID      String
         createdAt               DateTime @default(now())
         user    User    @relation(fields: [userId],references: [id])
-        market   Stock   @relation(fields:[marketId],references: [id])
         original  Order  @relation(fields:[originalOrderID],references: [id])
 }
