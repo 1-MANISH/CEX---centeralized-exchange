@@ -75,7 +75,7 @@ export const useExchangeStore = create((set,get)=>({
                 set({isFetching:true})
                 try {
                         const response = await axiosInstance.get(`/exchange/orders`)
-                        set({orders:response.data.data})
+                        set({orders:response.data.data.orders})
                 } catch (error) {
                         console.log("Error fetching orders:", error)
                 }finally{
@@ -87,7 +87,7 @@ export const useExchangeStore = create((set,get)=>({
                 set({isFetching:true})
                 try {
                         const response = await axiosInstance.get(`/exchange/fills`)
-                        set({fills:response.data.data})
+                        set({fills:response.data.data.fills})
                 } catch (error) {
                         console.log("Error fetching fills:", error)
                 }finally{

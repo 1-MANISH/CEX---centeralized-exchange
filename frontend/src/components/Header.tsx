@@ -50,8 +50,8 @@ export const Header = () => {
                                                                         <User />
                                                                         <span>{authUser?.username}</span>
                                                         </button>
-                                                        <LogOut onClick={()=>{
-                                                                logout()
+                                                        <LogOut onClick={async ()=>{
+                                                                await logout()
                                                                 navigate('/')
                                                         }} />
                                                   </div>

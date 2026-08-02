@@ -9,6 +9,7 @@ export const useAuthStore = create((set,get)=>({
         isSigningUp:false,
         isLoginIn:false,
         isLoggedIn:false,
+        isDepositing:false,
 
         checkAuth:async()=>{
                 try {
@@ -57,7 +58,7 @@ export const useAuthStore = create((set,get)=>({
          logout:async()=>{
                 try {
                         await axiosInstance.post('/auth/logout')
-                        set({authUser:null})
+                        set({authUser:null,isLoggedIn:false})
                         toast.success('Logged out successfully');
                         // socket disconnection
                 } catch (error:any) {
@@ -67,5 +68,19 @@ export const useAuthStore = create((set,get)=>({
                         set({isCheckingAuth:false})
                 }
         },
+        depositFunds:async(data:{symbol:string,quantity:number})=>{
+                set({isDepositing:true})
+                try {
+                        const response = await axiosInstance.post('/exchange/deposit',data)
+                        set({authUser:{...get().authUser,balance:response.data.data.balance}})
+                        toast.success('Funds deposited successfully');
+                        // socket disconnection
+                } catch (error:any) {
+                        console.log(`Error logging out: ${error}`)
+                        toast.error(`Failed to logout : ${error.response.data.message}`);
+                }finally{
+                          set({isDepositing:false})
+                }
+        }
 
 }))

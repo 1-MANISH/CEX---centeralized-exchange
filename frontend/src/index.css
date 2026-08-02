@@ -10,6 +10,7 @@
         --pink-accent: #9e4359;
         --chalk-green: #3dbe7e;
         --chalk-red: #e55555;
+        --pink-disabled: #914848;
 }
 
 body {
@@ -56,4 +57,11 @@ body {
 .chalk-button:hover {
         background-color: var(--pink-bright);
         color: #000;
+}
+.chalk-button-disabled {
+       background-color: var(--pink-accent);
+        color: #ffffff;
+        cursor: not-allowed;
+        border-radius: 8px;
+        padding: 8px 16px;
 }

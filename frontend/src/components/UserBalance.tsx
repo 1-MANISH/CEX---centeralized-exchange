@@ -102,7 +102,7 @@ export const UserBalance= ({
         }, [balances]);
 
         return (
-                <div className="chalk-card w-full p-5 font-mono bg-[#0D0C0E] border-2 border-[#824b57] text-[#FFFFFF] rounded-lg space-y-5">
+                <div className=" w-full p-5 font-mono bg-[#0D0C0E]  text-[#FFFFFF] rounded-lg space-y-5">
 
                
                         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#824b57]/40 pb-4">

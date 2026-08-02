@@ -41,7 +41,7 @@ export const OrderBook: React.FC<OrderBookProps> = ({
                                 total: cumulative,
                         }
                 })
-                return mapped.reverse()
+                return mapped
         }, [sortedAsks])
 
 

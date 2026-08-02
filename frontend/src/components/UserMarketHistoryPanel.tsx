@@ -2,20 +2,21 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '../store/useAuthStore';
 import { UserBalance } from './UserBalance';
+import { ShowOrders } from './ShowOrders';
+import { ShowFills } from './ShowFills';
 export type MainTabType =
         | 'balances'
-        | 'openOrders'
         | 'fillHistory'
         | 'orderHistory'
 
 interface UserHistoryPanelProps {
         marketSymbol?: string; // e.g. "SOL"
-        children?: React.ReactNode; // Slot to render your TanStack table when data exists
+        currentMarketButtonEnable:boolean
 }
 
 export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
-        marketSymbol = 'SOL',
-        children,
+        marketSymbol = null,
+        currentMarketButtonEnable=true
 }) => {
         const {isLoggedIn} = useAuthStore()
         const navigate  =  useNavigate()
@@ -25,8 +26,7 @@ export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
         // Tab definitions
         const mainTabs: { id: MainTabType; label: string }[] = [
                 { id: 'balances', label: 'Balances' },
-                { id: 'openOrders', label: 'Open Orders' },
-                { id: 'fillHistory', label: 'Fill History' },
+                { id: 'fillHistory', label: 'Trade History' },
                 { id: 'orderHistory', label: 'Order History' },
 
         ];
@@ -34,11 +34,6 @@ export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
         // Helper text for empty state based on active tab
         const getEmptyStateMessage = () => {
                 switch (activeTab) {
-                        case 'openOrders':
-                                return {
-                                        title: 'No open orders',
-                                        desc: `Your active open orders for ${onlyCurrentMarket ? marketSymbol : 'all markets'} will show up here.`,
-                                };
                         case 'fillHistory':
                                 return {
                                         title: 'No fill history',
@@ -64,29 +59,26 @@ export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
 
         const emptyInfo = getEmptyStateMessage()
 
-        const renderTab =useMemo( () => {
+        const ActiveTab =useMemo( () => {
 
                 switch (activeTab) {
                         case 'balances':
                                 return (
                                         <UserBalance/>
                                 );      
-                        case 'openOrders':
-                                return (
-                                            <UserBalance/>
-                                );
                         case 'fillHistory':
-                                return (
-                                            <UserBalance/>
-                                );
+                                return onlyCurrentMarket && currentMarketButtonEnable ? ( <ShowFills currentMarket={marketSymbol} />) : (
+                                           <ShowFills currentMarket={null} />
+                                )
                         case 'orderHistory':
-                                return (
-                                           <UserBalance/>
+                                
+                                return onlyCurrentMarket && currentMarketButtonEnable ? ( <ShowOrders currentMarket={marketSymbol} />) : (
+                                           <ShowOrders currentMarket={null} />
                                 )
                         default:
                                 return null
                 }
-        }, [activeTab])
+        }, [activeTab, marketSymbol,currentMarketButtonEnable,onlyCurrentMarket]);
 
         return (
                 <div className="chalk-card w-full p-4 font-mono bg-[#0D0C0E] border-2 border-[#824b57] text-[#FFFFFF] rounded-lg space-y-4">
@@ -115,6 +107,7 @@ export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
 
                                 {/* Right Controls: Market Filter Checkbox */}
                                 <div className="flex items-center gap-4 text-xs text-[#A09CA3]">
+                                        {currentMarketButtonEnable && (
                                         <label className="flex items-center gap-2 cursor-pointer hover:text-white select-none">
                                                 <input
                                                         type="checkbox"
@@ -124,6 +117,7 @@ export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
                                                 />
                                                 <span>Current Market ({marketSymbol})</span>
                                         </label>
+                                        )}
                                 </div>
                         </div>
 
@@ -164,7 +158,7 @@ export const UserMarketHistoryPanel: React.FC<UserHistoryPanelProps> = ({
                                         </div>
                                 ) : activeTab ? (
                                         /* STATE B: User Logged In & Has Table Data */
-                                        <div className="w-full">{renderTab}</div>
+                                        <div className="w-full">{ActiveTab}</div>
                                 ) : (
                                         /* STATE C: User Logged In & No Orders/History Data */
                                         <div className="flex flex-col items-center justify-center space-y-3 text-center max-w-md">

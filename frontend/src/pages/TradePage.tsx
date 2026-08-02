@@ -74,7 +74,10 @@ export const TradePage: React.FC = () => {
                                 />
                         </div>
                         <div>
-                                  <UserMarketHistoryPanel />
+                                  <UserMarketHistoryPanel
+                                   currentMarketButtonEnable={true}
+                                   marketSymbol={symbol}
+                                   />
                         </div>
 
                 </div>
