@@ -7,11 +7,11 @@ export function  executeTrade(
         sellOrder: Order
 ) {
         const tradeQty = Math.min(
-                buyOrder.remainingQuantity,
+                buyOrder.remainingQuantity, 
                 sellOrder.remainingQuantity
         )
 
-        const tradePrice = sellOrder.price
+        const tradePrice = sellOrder.price ?? buyOrder.price // for market order sell -  price will be null
 
         // updating the orders
         buyOrder.remainingQuantity -= tradeQty

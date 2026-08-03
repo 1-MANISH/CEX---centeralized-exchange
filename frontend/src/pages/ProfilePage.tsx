@@ -52,9 +52,9 @@ export const ProfilePage: React.FC = () => {
                                                                 className="chalk-input w-full mt-1 bg-[#121015]"
                                                         >
                                                                 <option value="USD">USD</option>
-                                                                <option value="ETH">ETH</option>
-                                                                <option value="SOL">SOL</option>
-                                                                <option value="BTC">BTC</option>
+                                                               <option value="ETH">ETH</option>
+                                                                 {/* <option value="SOL">SOL</option> 
+                                                                <option value="BTC">BTC</option> */}
                                                         </select>
                                                 </div>
                                                 <div>

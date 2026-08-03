@@ -12,6 +12,7 @@ import PageLoader from './components/PageLoader';
 import { LoginSignup } from './pages/LoginSignup';
 import { Protected } from './components/Protected';
 import { NotProtected } from './components/NotProtected';
+import { Docs } from './pages/Docs';
 
 
 
@@ -37,6 +38,7 @@ function App() {
                                 <Route path="/" element={<LandingPage />} />
                                 <Route path="/spot" element={<SpotPage />}/>
                                 <Route path="/trade/:symbol" element={<TradePage />} />
+                                <Route path="/docs" element={<Docs />} />
                                 <Route path="/login" element={<NotProtected><LoginSignup /></NotProtected>} />
                                 <Route path="/signup" element={<NotProtected><LoginSignup /></NotProtected>} />
                                 <Route path="/profile" element={<Protected><ProfilePage /> </Protected>} />

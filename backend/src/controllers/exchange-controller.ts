@@ -186,21 +186,29 @@ async function getDepth(req: Request, res: Response): Promise<void> {
         const symbol = req.params.symbol as string
 
         if(!ORDERBOOK[symbol]){
-                sendError(res, STATUS_CODE.NOT_FOUND as number, MESSAGES.MARKET_NOT_FOUND as string)
-                return
+                // sendError(res, STATUS_CODE.NOT_FOUND as number, MESSAGES.MARKET_NOT_FOUND as string)
+                // return
+                ORDERBOOK[symbol] = {bids:[],asks:[],lastTradePrice:0}
         }
         const outputBidsMap = new Map<number,number>()
         const outputAsksMap = new Map<number,number>()
 
+        //  only top 10 bids and asks should be sent to the user
+        let count = 0
         ORDERBOOK[symbol]?.bids.map((bid) => {
+                 if(count >= 10) return
+                 count++
                 if(outputBidsMap.has(bid.price)){
                         const existingQuantity = outputBidsMap.get(bid.price) as number
                         outputBidsMap.set(bid.price,existingQuantity + bid.quantity)
                 }
                 else outputBidsMap.set(bid.price,bid.quantity)
+               
         })
-
+        count = 0
         ORDERBOOK[symbol]?.asks.map((ask) => {
+                if(count >= 10) return
+                count++
                 if(outputAsksMap.has(ask.price)){
                         const existingQuantity = outputAsksMap.get(ask.price) as number
                         outputAsksMap.set(ask.price,existingQuantity + ask.quantity)

@@ -37,10 +37,10 @@ export  function matchBuy(order: Order) {
                                 asks.shift() // remove this  ask from the orderbook
         }
 
-         if(order.type === "limit" ){
+        if(order.type === "limit" ){
                 // limit buy order not able to filled currently but in future can be
                 if( order.remainingQuantity > 0) {
-                        book.bids.push(order)
+                        book.bids.push(order) // highest to lowest price
                         book.bids.sort((a:Order,b:Order)=>b.price - a.price)
                 }
                 else book.bids = book.bids.filter(bid=>bid.id !== order.id)

@@ -35,10 +35,10 @@ export const Header = () => {
                                 </button>
 
                                 <button
-                                        onClick={() => navigate('/fee')}
+                                        onClick={() => navigate('/docs')}
                                         className="hover:text-[#e8829c]"
                                 >
-                                        fees
+                                        docs
                                 </button>
                         </div>
 

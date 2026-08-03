@@ -40,7 +40,7 @@ export const OrderBook: React.FC<OrderBookProps> = ({
                                 size,
                                 total: cumulative,
                         }
-                })
+                }).reverse()
                 return mapped
         }, [sortedAsks])
 
@@ -90,7 +90,7 @@ export const OrderBook: React.FC<OrderBookProps> = ({
                                         <span className="text-[#E8829C]">Book</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-[11px]">
-                                        <span className="text-[#6B6570]">0.00001</span>
+                                        {/* <span className="text-[#6B6570]">0.00001</span> */}
                                 </div>
                         </div>
 
