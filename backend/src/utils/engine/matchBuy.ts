@@ -3,7 +3,7 @@ import type { Order } from "../interfaces"
 import { executeTrade } from "./executeTrade";
 export  function matchBuy(order: Order) {
 
-
+        // at time of validation we have already checked if the market is valid or not - then adding empty orderbook
         const book = ORDERBOOK[order.market]
 
         if (!book) {

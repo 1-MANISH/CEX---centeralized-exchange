@@ -26,10 +26,12 @@ export function  executeTrade(
         // update the balances -  means unlock the funds
         // buyer
         BALANCES[buyOrder.userId].USD.locked -= tradeQty * tradePrice
+        if(!BALANCES[buyOrder.userId][buyOrder.market] )BALANCES[buyOrder.userId][buyOrder.market] = { available: 0,locked: 0}
         BALANCES[buyOrder.userId][buyOrder.market].available += tradeQty
 
         // seller
         BALANCES[sellOrder.userId][sellOrder.market].locked -= tradeQty
+        if(!BALANCES[sellOrder.userId].USD) BALANCES[sellOrder.userId].USD = { available: 0,locked: 0}
         BALANCES[sellOrder.userId].USD.available += tradeQty * tradePrice
 
          // first update orderbook - last trade price

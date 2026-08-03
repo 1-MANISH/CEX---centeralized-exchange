@@ -189,24 +189,28 @@ async function getDepth(req: Request, res: Response): Promise<void> {
                 sendError(res, STATUS_CODE.NOT_FOUND as number, MESSAGES.MARKET_NOT_FOUND as string)
                 return
         }
+        const outputBidsMap = new Map<number,number>()
+        const outputAsksMap = new Map<number,number>()
 
-        const outputBids = ORDERBOOK[symbol]?.bids.map((bid) => {
-                return {
-                        price: bid.price,
-                        quantity: bid.quantity
+        ORDERBOOK[symbol]?.bids.map((bid) => {
+                if(outputBidsMap.has(bid.price)){
+                        const existingQuantity = outputBidsMap.get(bid.price) as number
+                        outputBidsMap.set(bid.price,existingQuantity + bid.quantity)
                 }
+                else outputBidsMap.set(bid.price,bid.quantity)
         })
 
-        const outputAsks = ORDERBOOK[symbol]?.asks.map((ask) => {
-                return {
-                        price: ask.price,
-                        quantity: ask.quantity
+        ORDERBOOK[symbol]?.asks.map((ask) => {
+                if(outputAsksMap.has(ask.price)){
+                        const existingQuantity = outputAsksMap.get(ask.price) as number
+                        outputAsksMap.set(ask.price,existingQuantity + ask.quantity)
                 }
+                else outputAsksMap.set(ask.price,ask.quantity)
         })
 
         const data = {
-                bids: outputBids,
-                asks: outputAsks,
+                bids: Array.from(outputBidsMap.entries()).map(([price,quantity])=>({price,quantity})),
+                asks: Array.from(outputAsksMap.entries()).map(([price,quantity])=>({price,quantity})),
                 lastTradePrice: ORDERBOOK[symbol].lastTradePrice
         }
 

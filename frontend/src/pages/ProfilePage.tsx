@@ -54,6 +54,7 @@ export const ProfilePage: React.FC = () => {
                                                                 <option value="USD">USD</option>
                                                                 <option value="ETH">ETH</option>
                                                                 <option value="SOL">SOL</option>
+                                                                <option value="BTC">BTC</option>
                                                         </select>
                                                 </div>
                                                 <div>

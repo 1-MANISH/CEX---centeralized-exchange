@@ -141,11 +141,11 @@ export const OrderBook: React.FC<OrderBookProps> = ({
                                 <div className="py-2 my-1 px-2 border-y border-[#824b57]/30 bg-[#161419] flex items-center justify-between text-sm font-bold">
                                         <div className="flex items-center gap-2">
                                                 <span className="text-[#3DBE7E] text-base">
-                                                        {data.lastTradePrice > 0 ? data.lastTradePrice.toFixed(4) : '—'}
+                                                        ${data.lastTradePrice > 0 ? data.lastTradePrice.toFixed(4) : '—'}
                                                 </span>
-                                                <span className="text-xs text-[#A09CA3] font-normal">
+                                                {/* <span className="text-xs text-[#A09CA3] font-normal">
                                                         ${data.lastTradePrice > 0 ? data.lastTradePrice.toFixed(2) : '0.00'}
-                                                </span>
+                                                </span> */}
                                         </div>
                                 </div>
 
