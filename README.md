@@ -7,9 +7,7 @@ Goal: build v0 — a simple, in-memory CEX prototype that maintains balances and
 
 # version-0 demo watch
 
-[Demo Video](./version-0.mp4)
-
-version-0 working model
+https://github.com/user-attachments/assets/426e615b-b7f5-46c3-8369-55a764817256
 
 This project was created using `bun init`. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
 
