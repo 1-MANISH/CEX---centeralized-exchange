@@ -1,6 +1,6 @@
 # Building a Mini Centralized Exchange (CEX)
 
-This repository is a learning project to design and implement a mini centralized exchange (CEX) in incremental versions.
+This repository is a  project to design and implement a mini centralized exchange (CEX) in incremental versions.
 
 Goal: build v0 — a simple, in-memory CEX prototype that maintains balances and an orderbook in memory (no robust persistence). Later move to v1 with Redis pub/sub, WebSockets, and scalable system design backed by PostgreSQL and Prisma.
 
@@ -13,7 +13,7 @@ Project roadmap
 - v0 (current target):
   - In-memory balances and orderbook.
   - Basic REST endpoints (login/register, place order, cancel order, get orderbook, get balances).
-  - Simple matching engine supporting limit and market orders.
+  - Matching engine supporting limit and market orders.
   - No durable backup; state lost on restart (intended for learning).
 
 - v1 (future):
