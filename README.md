@@ -5,6 +5,11 @@ This repository is a  project to design and implement a mini centralized exchang
 Goal: build v0 — a simple, in-memory CEX prototype that maintains balances and an orderbook in memory (no robust persistence). Later move to v1 with Redis pub/sub, WebSockets, and scalable system design backed by PostgreSQL and Prisma.
 
 
+# version-0 demo watch
+
+[Demo Video](./version-0.mp4)
+
+version-0 working model
 
 This project was created using `bun init`. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
 
