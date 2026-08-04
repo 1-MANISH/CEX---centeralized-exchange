@@ -37,6 +37,8 @@ export function  executeTrade(
          // first update orderbook - last trade price
         ORDERBOOK[buyOrder.market].lastTradePrice = tradePrice
 
+        // no need to updated the orderbook - partial filled then need to - buy reference and sell reference
+
 
         //this we will do at the end - saving into database
         const fills = [

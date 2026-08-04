@@ -26,8 +26,7 @@ export const OrderBook: React.FC<OrderBookProps> = ({
 }) => {
 
         const sortedAsks = data.asks // lowest to highest
-        // highest to lowest
-        const sortedBids = data.bids
+        const sortedBids = data.bids// highest to lowest
 
 
         const processedAsks = useMemo(() => {

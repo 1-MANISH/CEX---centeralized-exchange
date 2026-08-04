@@ -190,8 +190,10 @@ async function getDepth(req: Request, res: Response): Promise<void> {
                 // return
                 ORDERBOOK[symbol] = {bids:[],asks:[],lastTradePrice:0}
         }
-        const outputBidsMap = new Map<number,number>()
-        const outputAsksMap = new Map<number,number>()
+
+        // lets send {price:10 ->{quantity:10,remainingQuantity:4,filledQuantity:6}}
+        const outputBidsMap = new Map<number,{quantity:number,remainingQuantity:number,filledQuantity:number}>()
+        const outputAsksMap = new Map<number,{quantity:number,remainingQuantity:number,filledQuantity:number}>()
 
         //  only top 10 bids and asks should be sent to the user
         let count = 0
@@ -199,10 +201,11 @@ async function getDepth(req: Request, res: Response): Promise<void> {
                  if(count >= 10) return
                  count++
                 if(outputBidsMap.has(bid.price)){
-                        const existingQuantity = outputBidsMap.get(bid.price) as number
-                        outputBidsMap.set(bid.price,existingQuantity + bid.quantity)
+                        const data = outputBidsMap.get(bid.price) as {quantity:number,remainingQuantity:number,filledQuantity:number}
+
+                        outputBidsMap.set(bid.price,{quantity:data.quantity + bid.quantity,remainingQuantity:data.remainingQuantity+bid.remainingQuantity,filledQuantity:data.filledQuantity+bid.filledQuantity})
                 }
-                else outputBidsMap.set(bid.price,bid.quantity)
+                else outputBidsMap.set(bid.price,{quantity:bid.quantity,remainingQuantity:bid.remainingQuantity,filledQuantity:bid.filledQuantity})
                
         })
         count = 0
@@ -210,15 +213,15 @@ async function getDepth(req: Request, res: Response): Promise<void> {
                 if(count >= 10) return
                 count++
                 if(outputAsksMap.has(ask.price)){
-                        const existingQuantity = outputAsksMap.get(ask.price) as number
-                        outputAsksMap.set(ask.price,existingQuantity + ask.quantity)
+                        const data = outputAsksMap.get(ask.price) as {quantity:number,remainingQuantity:number,filledQuantity:number}
+                        outputAsksMap.set(ask.price,{quantity:data.quantity + ask.quantity,remainingQuantity:data.remainingQuantity+ask.remainingQuantity,filledQuantity:data.filledQuantity+ask.filledQuantity})
                 }
-                else outputAsksMap.set(ask.price,ask.quantity)
+                else outputAsksMap.set(ask.price,{quantity:ask.quantity,remainingQuantity:ask.remainingQuantity,filledQuantity:ask.filledQuantity})
         })
-
+        // need to also send filled quantity and remaining quantity for each price level -  for that we need to maintain a map of price to filled quantity and remaining quantity
         const data = {
-                bids: Array.from(outputBidsMap.entries()).map(([price,quantity])=>({price,quantity})),
-                asks: Array.from(outputAsksMap.entries()).map(([price,quantity])=>({price,quantity})),
+                bids: Array.from(outputBidsMap.entries()).map(([price,{quantity,remainingQuantity,filledQuantity}])=>({price,quantity,remainingQuantity,filledQuantity})),
+                asks: Array.from(outputAsksMap.entries()).map(([price,{quantity,remainingQuantity,filledQuantity}])=>({price,quantity,remainingQuantity,filledQuantity})),
                 lastTradePrice: ORDERBOOK[symbol].lastTradePrice
         }
 

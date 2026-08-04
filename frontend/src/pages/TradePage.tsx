@@ -3,26 +3,42 @@ import { StockChart } from '../components/StockChart'
 import { useParams } from 'react-router'
 import { PlaceOrder } from '../components/PlaceOrder'
 import { OrderBook } from '../components/OrderBook'
+import { OrderBookTest } from '../components/OrderBookTest'
 import { UserMarketHistoryPanel } from '../components/UserMarketHistoryPanel'
 import { useExchangeStore } from '../store/useExchange'
 
-const sampleDepth = {
-    bids: [
-      { price: 0.17059, quantity: 13115.12 },
-      { price: 0.17058, quantity: 1097.43 },
-      { price: 0.17055, quantity: 1097.68 },
-      { price: 0.17053, quantity: 1098.39 },
-      { price: 0.17050, quantity: 1099.00 },
-    ],
-    asks: [
-      { price: 0.17081, quantity: 11427.02 },
-      { price: 0.17080, quantity: 1099.00 },
-      { price: 0.17078, quantity: 1099.01 },
-      { price: 0.17077, quantity: 99.00 },
-      { price: 0.17064, quantity: 116.86 },
-    ],
-    lastTradePrice: 0.17061,
-  };
+const backendData = {
+
+      bids: [
+        {
+          price: 1000,
+          quantity: 5,
+          filledQuantity: 4,
+          remainingQuantity: 1,
+        },
+        {
+          price: 900,
+          quantity: 5,
+          filledQuantity: 3,
+          remainingQuantity: 2,
+        },
+      ],
+      asks: [
+        {
+          price: 1050,
+          quantity: 3,
+          filledQuantity: 2,
+          remainingQuantity: 1,
+        },
+         {
+          price: 1100,
+          quantity: 5,
+          filledQuantity: 3,
+          remainingQuantity: 2,
+        }
+      ],
+      lastTradePrice: 1025.50,
+};
 
 export const TradePage: React.FC = () => {
 
@@ -61,7 +77,8 @@ export const TradePage: React.FC = () => {
                                 <div className="lg:col-span-2 space-y-4">
                                         <div className="py-4 space-y-4 flex  gap-2 sm:flex-row flex-col">
                                                 <div className='flex-2'><StockChart  /></div>
-                                                <div className='flex-1'><OrderBook symbol={symbol} data={orderBook} /></div>
+                                                {/* <div className='flex-1'><OrderBook symbol={symbol} data={orderBook} /></div> */}
+                                                <div className='flex-1'><OrderBookTest symbol={symbol} data={orderBook} /></div>
                                         </div>
 
                                       
