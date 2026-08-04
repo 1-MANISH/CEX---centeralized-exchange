@@ -68,13 +68,23 @@ export const PlaceOrder: React.FC<PlaceOrderProps> = ({
 
            
                 try {
-                        createOrder({
-                                side,
-                                        type: orderType,
-                                        price: numericPrice,
-                                        quantity: numericQuantity,
-                                        market: assetSymbol,
-                        })
+                        if(orderType === 'limit' ){
+                                createOrder({
+                                        side,
+                                                type: orderType,
+                                                price: numericPrice,
+                                                quantity: numericQuantity,
+                                                market: assetSymbol,
+                                })
+                        }else{
+                                createOrder({
+                                        side,
+                                                type: orderType,
+                                                quantity: numericQuantity,
+                                                market: assetSymbol,
+                                        })
+                        }
+                        
                 } catch (error) {
                         console.log("Error creating order:", error)
                 }

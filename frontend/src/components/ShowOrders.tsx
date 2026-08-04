@@ -84,7 +84,7 @@ export const ShowOrders: React.FC<ShowOrdersProps> = ({
                                 header: 'Price',
                                 cell: (info) => (
                                         <span className="font-mono text-xs text-white">
-                                                ${info.getValue<number>().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                                                ${info.getValue<number>()?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                                         </span>
                                 ),
                         },

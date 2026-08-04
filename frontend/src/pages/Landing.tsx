@@ -2,6 +2,7 @@
 import { ShieldCheck, FlaskConical, Zap, TrendingUp, PieChart, Users } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
+
 export const LandingPage= () => {
 
         const navigate = useNavigate()
@@ -46,7 +47,7 @@ export const LandingPage= () => {
                          
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
-                                <div className="chalk-card p-4 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/spot')}>
+                                <div className="chalk-card  p-4 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/spot')}>
                                         <TrendingUp className="text-[#3dbe7e]" />
                                         <div>
                                                 <div className="font-bold">Live Market Data</div>
@@ -68,6 +69,8 @@ export const LandingPage= () => {
                                         </div>
                                 </div>
                         </div>
+
+
                 </div>
         );
 };

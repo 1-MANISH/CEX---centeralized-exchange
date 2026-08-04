@@ -40,7 +40,7 @@ async function signupHandler(
                         }
                 })
 
-                
+                BALANCES[user.id] = {USD:{available:0,locked:0}}
                 // create token and set cookie
                 createToken({userId:user.id},res)
 

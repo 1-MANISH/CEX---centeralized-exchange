@@ -51,7 +51,12 @@ export const useExchangeStore = create((set,get)=>({
                 set({isFetching:true})
                 try {
                         const response = await axiosInstance.get(`/exchange/depth/${symbol}`)
-                        set({orderBook:response.data.data.depth})
+                        if(!response.data.data.depth){
+                                console.log("YHAAA")
+                                set({orderBook:{bids:[],asks:[],lastTradePrice:0}})
+                                return
+                        }
+                        else set({orderBook:response.data.data.depth})
                 } catch (error) {
                         console.log("Error fetching order book:", error)
                 }finally{

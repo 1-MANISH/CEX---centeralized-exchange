@@ -1,0 +1,120 @@
+{
+  "timestamp": "2026-08-04T09:16:51.263Z",
+  "orderbook": {
+    "SOL": {
+      "bids": [
+        {
+          "id": "4fa7d12a-18fa-4023-8f09-f2bd88eb68a2",
+          "userId": "368cbf36-2baa-4353-bda9-9760b2acb63d",
+          "market": "SOL",
+          "price": 1000,
+          "quantity": 2,
+          "type": "limit",
+          "side": "buy",
+          "filledQuantity": 0,
+          "remainingQuantity": 2,
+          "status": "open",
+          "createdAt": "2026-08-04T08:20:38.731Z"
+        }
+      ],
+      "asks": [],
+      "lastTradePrice": 0
+    },
+    "ETH": {
+      "bids": [
+        {
+          "id": "655b430a-b5bb-4e72-a309-68a55dbc3ff9",
+          "userId": "d786a9ac-175e-4341-b957-e556989b4c25",
+          "market": "ETH",
+          "price": 1000,
+          "quantity": 2,
+          "type": "limit",
+          "side": "buy",
+          "filledQuantity": 1,
+          "remainingQuantity": 1,
+          "status": "partial_filled",
+          "createdAt": "2026-08-04T08:58:09.089Z"
+        },
+        {
+          "id": "d0f41a4c-dc9e-4277-aac5-c56a964415ff",
+          "userId": "368cbf36-2baa-4353-bda9-9760b2acb63d",
+          "market": "ETH",
+          "price": 950,
+          "quantity": 2,
+          "type": "limit",
+          "side": "buy",
+          "filledQuantity": 0,
+          "remainingQuantity": 2,
+          "status": "open",
+          "createdAt": "2026-08-04T08:51:26.010Z"
+        },
+        {
+          "id": "4cd080eb-33de-4e5d-a6c2-cb60437f5065",
+          "userId": "d786a9ac-175e-4341-b957-e556989b4c25",
+          "market": "ETH",
+          "price": 950,
+          "quantity": 1,
+          "type": "limit",
+          "side": "buy",
+          "filledQuantity": 0,
+          "remainingQuantity": 1,
+          "status": "open",
+          "createdAt": "2026-08-04T08:57:38.054Z"
+        }
+      ],
+      "asks": [
+        {
+          "id": "6fcab478-3a0c-43ef-a70d-0c9e84f7b756",
+          "userId": "81a212df-d1b0-4be2-b4ed-b891ff563b8d",
+          "market": "ETH",
+          "price": 1150,
+          "quantity": 1,
+          "type": "limit",
+          "side": "sell",
+          "filledQuantity": 0,
+          "remainingQuantity": 1,
+          "status": "open",
+          "createdAt": "2026-08-04T08:50:30.898Z"
+        }
+      ],
+      "lastTradePrice": 950
+    },
+    "BTC": {
+      "bids": [],
+      "asks": [],
+      "lastTradePrice": 0
+    }
+  },
+  "balances": {
+    "81a212df-d1b0-4be2-b4ed-b891ff563b8d": {
+      "USD": {
+        "available": 12950,
+        "locked": 0
+      },
+      "ETH": {
+        "available": 6,
+        "locked": 1
+      }
+    },
+    "368cbf36-2baa-4353-bda9-9760b2acb63d": {
+      "USD": {
+        "available": 4950,
+        "locked": 4050
+      },
+      "ETH": {
+        "available": 1,
+        "locked": 0
+      }
+    },
+    "d786a9ac-175e-4341-b957-e556989b4c25": {
+      "USD": {
+        "available": 6050,
+        "locked": 2000
+      },
+      "ETH": {
+        "available": 2,
+        "locked": 0
+      }
+    }
+  }
+}
