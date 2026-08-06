@@ -4,7 +4,7 @@ import { authSchema } from "../types/auth.schema.ts";
 import {sendValidationError} from "../utils/validation.ts"
 import { prismaClient } from "../db.ts";
 import { createToken } from "../utils/auth-token.ts";
-import { BALANCES } from "../index.ts";
+// import { BALANCES } from "../index.ts";
 import { ENV } from "../utils/env.ts";
 import { MESSAGES, STATUS_CODE } from "../utils/constant.ts";
 import { sendError, sendSuccess } from "../utils/response.ts";
@@ -90,7 +90,7 @@ async function signinHandler(
                 // create token and set cookie
                 createToken({userId:userExist.id },res)
 
-                sendSuccess(res,STATUS_CODE.OK as number,{userId:userExist.id,username:userExist.username,balance:BALANCES[userExist.id]??null},MESSAGES.LOGIN_SUCCESS as string)
+                sendSuccess(res,STATUS_CODE.OK as number,{userId:userExist.id,username:userExist.username,balance:{USD:{available:0,locked:0}} },MESSAGES.LOGIN_SUCCESS as string)
         } catch (error) {
                 sendError(res,STATUS_CODE.SERVER_ERROR as number,MESSAGES.USER_NOT_FOUND as string, error?.message  ?? "Internal server error")
         }

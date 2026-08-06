@@ -1,24 +1,15 @@
 
 import { prismaClient } from "../../db.ts"
+import { waitForEngineResponse } from "../../store/pending-response.ts"
+import { publisher } from "../engine-client.ts"
+import { ENV } from "../env.ts"
 import type {  UserOrder } from "../interfaces.ts"
-import { lockFunds } from "./lockFunds.ts"
-import { matchBuy } from "./matchBuy.ts"
-import { matchSell } from "./matchSell.ts"
-import { validateOrder } from "./validateOrder.ts"
 
 
 
 export async function processOrder(order:UserOrder){
 
         try {
-
-                // no need but just to be sure
-                validateOrder(order)
-
-                // locking funds if available otherwise throwing error to the user
-                lockFunds(order)
-
-                // now order may be full filled or partially filled
 
                 // we are sure that order can seat into the orderbook and can make order into database
                 let dbOrder =   await prismaClient.order.create({
@@ -30,34 +21,42 @@ export async function processOrder(order:UserOrder){
                         }
                 })
 
-                const { fills,updatedOrders,lastTradePrice} = order.side ==="buy" ? matchBuy(dbOrder) : matchSell(dbOrder)
+                const correlationId = dbOrder.id
+
+                const message= {correlationId,responseQueue:ENV.RESPONSE_QUEUE,type:'create_order',payload:dbOrder}
+
+               // sending the order to the engine => matching logic
+                await publisher.lPush(ENV.IN_COMING_QUEUE,JSON.stringify(message))
+
+                const data= await waitForEngineResponse(correlationId,0)
 
                 // persist the trades and orders in the database
-               await prismaClient.$transaction(async (tx) => {
+        //        await prismaClient.$transaction(async (tx) => {
                        
-                        await tx.fill.createMany({
-                                data:fills
-                        });
+        //                 await tx.fill.createMany({
+        //                         data:fills
+        //                 });
 
-                        await Promise.all(updatedOrders.map(order => {
-                                return tx.order.update({
-                                        where:{id:order.id },
-                                        data:{
-                                                filledQuantity:order.filledQuantity,
-                                                remainingQuantity:order.remainingQuantity,
-                                                status:order.status
-                                        }
-                                })
-                        }))
-               })
+        //                 await Promise.all(updatedOrders.map(order => {
+        //                         return tx.order.update({
+        //                                 where:{id:order.id },
+        //                                 data:{
+        //                                         filledQuantity:order.filledQuantity,
+        //                                         remainingQuantity:order.remainingQuantity,
+        //                                         status:order.status
+        //                                 }
+        //                         })
+        //                 }))
+        //        })
 
                 let ourOrder = await prismaClient.order.findFirst({
                         where:{id:dbOrder.id},
                 })
                 return {
+                        id:dbOrder.id,
                         filledQuantity:ourOrder?.filledQuantity,
                         remainingQuantity:ourOrder?.remainingQuantity,
-                        lastTradePrice
+                        data
                 }
         } catch (error) {
                 throw new Error("Error in processing order" + (error?.message ?? error))

@@ -8,8 +8,8 @@ const exchangeRouter = Router()
 
 exchangeRouter.post('/deposit',requiredAuth,asyncHandler(depositAsset))
 
-// create a new stock
-exchangeRouter.post("/stock", requiredAuth,asyncHandler(createAStock))
+// // create a new stock
+// exchangeRouter.post("/stock", requiredAuth,asyncHandler(createAStock))
 
 
 // --- Orders ---
@@ -43,6 +43,8 @@ body:{
 
 // create order
 exchangeRouter.post("/order",requiredAuth,asyncHandler(createOrder))
+
+
 // get order details
 /*
 return {
@@ -53,31 +55,31 @@ return {
         orderStatus:"open" | "close" | "cancelled"
 }
 */
-exchangeRouter.get("/order/:orderId",requiredAuth, asyncHandler(getOrder))
+// exchangeRouter.get("/order/:orderId",requiredAuth, asyncHandler(getOrder))
 
-// cancel order -  only unfilled orders can be cancelled
-/*
-originalOrder 100 SOL
-filled  = 40 SOL
-remaining = 60 SOL
+// // cancel order -  only unfilled orders can be cancelled
+// /*
+// originalOrder 100 SOL
+// filled  = 40 SOL
+// remaining = 60 SOL
 
-60 SOL removed from orderbook
-*/
-exchangeRouter.put("/order/:orderId",requiredAuth,asyncHandler(cancelOrder))
+// 60 SOL removed from orderbook
+// */
+// exchangeRouter.put("/order/:orderId",requiredAuth,asyncHandler(cancelOrder))
 
-// get all orders
-exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
+// // get all orders
+// exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
 
-// --- Market data ---
-// get orderbook - app.get('/depth/:symbol',(req,res)=>{})
-exchangeRouter.get("/depth/:symbol",asyncHandler(getDepth))
+// // --- Market data ---
+// // get orderbook - app.get('/depth/:symbol',(req,res)=>{})
+// exchangeRouter.get("/depth/:symbol",asyncHandler(getDepth))
 
-exchangeRouter.get("/stocks/matrix",asyncHandler(getAllStocksMatrix))
+// exchangeRouter.get("/stocks/matrix",asyncHandler(getAllStocksMatrix))
 
 
-exchangeRouter.get("/fills",requiredAuth,asyncHandler(getAllFills))
-exchangeRouter.get("/fills/:orderId/",requiredAuth,asyncHandler(getOrderFills))
-exchangeRouter.get("/balance", requiredAuth,asyncHandler(getBalance))
+// exchangeRouter.get("/fills",requiredAuth,asyncHandler(getAllFills))
+// exchangeRouter.get("/fills/:orderId/",requiredAuth,asyncHandler(getOrderFills))
+// exchangeRouter.get("/balance", requiredAuth,asyncHandler(getBalance))
 
 
 

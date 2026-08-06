@@ -11,22 +11,13 @@ type Type = "market" | "limit"
 
 type Side = "buy" | "sell"
 
-type EngineCommandType =
+export type EngineCommandType =
   | "deposit_asset"
   | "create_order"
   | "get_depth"
   | "get_user_balance"
   | "get_order"
   | "cancel_order";
-
-interface UserOrder{
-        userId:string,
-        type:Type,
-        side:Side,
-        market:string,
-        quantity:number
-        price?:number|null,
-}
 
  interface Order {
     id: string;
@@ -42,19 +33,12 @@ interface UserOrder{
     createdAt: Date;
 }
 
-
-interface Matrix {
-        name:string,
-        symbol:string,
-        currentPrice:number,
-        volume24h:number,
-        change24h:number
-}
-
-interface TokenPayload {
-        userId:string;
+interface Message{
+        type:EngineCommandType,
+        payload:any
 }
 
 
 
-export type {UserOrder,Order, Status, Type, Side , Balance, Matrix, TokenPayload,EngineCommandType}
+
+export type {Message,Order, Status, Type, Side , Balance}

@@ -18,5 +18,10 @@ export const ENV = {
         ACCESS_TOKEN_EXPIRY: Number(readRequiredEnv("ACCESS_TOKEN_EXPIRY")) ?? 1 * 24 * 60 * 60,
         ADMIN_USERNAME: readRequiredEnv("ADMIN_USERNAME") ?? "",
         ADMIN_PASSWORD: readRequiredEnv("ADMIN_PASSWORD") ?? "",
-        NODE_ENV: readRequiredEnv("NODE_ENV")
+        NODE_ENV: readRequiredEnv("NODE_ENV"),
+
+        REDIS_URL: readRequiredEnv("REDIS_URL"),
+        IN_COMING_QUEUE: readRequiredEnv("IN_COMING_QUEUE"),
+        RESPONSE_QUEUE:`response-queue-${process.env.BACKEND_QUEUE_ID ?? crypto.randomUUID()}`,
+        ENGINE_TIMEOUT_MS:Number(readRequiredEnv("ENGINE_TIMEOUT_MS"))
 }

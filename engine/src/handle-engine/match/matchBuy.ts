@@ -1,5 +1,6 @@
 import { ORDERBOOK } from "../..";
-import type { Order } from "../interfaces"
+import type { Order } from "../../utils/interfaces";
+
 import { executeTrade } from "./executeTrade";
 export  function matchBuy(order: Order) {
 

@@ -1,6 +1,7 @@
+import { BALANCES, ORDERBOOK } from "../.."
+import type { Order, Side } from "../../utils/interfaces"
 
-import { BALANCES, ORDERBOOK } from "../..";
-import type { Order, Side } from "../interfaces";
+
 
 export function  executeTrade(
         buyOrder: Order,
