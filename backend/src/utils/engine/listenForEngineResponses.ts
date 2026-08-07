@@ -3,22 +3,21 @@ import { subscriber } from "../engine-client";
 import { ENV } from "../env";
 
 
-
 // connect before we starting our express server 
 export async function listenForEngineResponses(){
         // listen to all events from engine -  make
         //  entry in pending response store
         console.log(`[Engine] Listening for engine responses...`)
 
-        console.log(pendingResponses)
-        const response = await subscriber.brPop(ENV.RESPONSE_QUEUE,1) as any // blocking for 1 sec then response null
+        const response = await subscriber.brPop(ENV.RESPONSE_QUEUE,2) as any // blocking for 1 sec then response null
 
         if(response) {
                 const{key,element} = response
                 const message = JSON.parse(element)
                 const {correlationId,ok,data} = message
-                if(correlationId && pendingResponses.has(correlationId)){
-                        pendingResponses.get(correlationId)({ok,data})
+                console.log(`[Engine] Received response for ${correlationId}`)
+                if(correlationId &&  pendingResponses.has(correlationId)){
+                        pendingResponses.get(correlationId)(data)
                         pendingResponses.delete(correlationId)
                 }
         }

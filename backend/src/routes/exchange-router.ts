@@ -8,8 +8,8 @@ const exchangeRouter = Router()
 
 exchangeRouter.post('/deposit',requiredAuth,asyncHandler(depositAsset))
 
-// // create a new stock
-// exchangeRouter.post("/stock", requiredAuth,asyncHandler(createAStock))
+// create a new stock
+exchangeRouter.post("/stock", requiredAuth,asyncHandler(createAStock))
 
 
 // --- Orders ---
@@ -55,7 +55,7 @@ return {
         orderStatus:"open" | "close" | "cancelled"
 }
 */
-// exchangeRouter.get("/order/:orderId",requiredAuth, asyncHandler(getOrder))
+exchangeRouter.get("/order/:orderId",requiredAuth, asyncHandler(getOrder))
 
 // // cancel order -  only unfilled orders can be cancelled
 // /*
@@ -65,21 +65,22 @@ return {
 
 // 60 SOL removed from orderbook
 // */
-// exchangeRouter.put("/order/:orderId",requiredAuth,asyncHandler(cancelOrder))
+exchangeRouter.put("/order/:orderId",requiredAuth,asyncHandler(cancelOrder))
 
 // // get all orders
-// exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
+exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
 
-// // --- Market data ---
-// // get orderbook - app.get('/depth/:symbol',(req,res)=>{})
-// exchangeRouter.get("/depth/:symbol",asyncHandler(getDepth))
+// --- Market data ---
+// get orderbook - app.get('/depth/:symbol',(req,res)=>{})
 
-// exchangeRouter.get("/stocks/matrix",asyncHandler(getAllStocksMatrix))
+exchangeRouter.get("/depth/:symbol",asyncHandler(getDepth))
+
+exchangeRouter.get("/stocks/matrix",asyncHandler(getAllStocksMatrix))
 
 
-// exchangeRouter.get("/fills",requiredAuth,asyncHandler(getAllFills))
-// exchangeRouter.get("/fills/:orderId/",requiredAuth,asyncHandler(getOrderFills))
-// exchangeRouter.get("/balance", requiredAuth,asyncHandler(getBalance))
+exchangeRouter.get("/fills",requiredAuth,asyncHandler(getAllFills))
+exchangeRouter.get("/fills/:orderId/",requiredAuth,asyncHandler(getOrderFills))
+exchangeRouter.get("/balance", requiredAuth,asyncHandler(getBalance))
 
 
 

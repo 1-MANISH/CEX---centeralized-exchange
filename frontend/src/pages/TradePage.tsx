@@ -77,8 +77,8 @@ export const TradePage: React.FC = () => {
                                 <div className="lg:col-span-2 space-y-4">
                                         <div className="py-4 space-y-4 flex  gap-2 sm:flex-row flex-col">
                                                 <div className='flex-2'><StockChart  /></div>
-                                                {/* <div className='flex-1'><OrderBook symbol={symbol} data={orderBook} /></div> */}
-                                                <div className='flex-1'><OrderBookTest symbol={symbol} data={orderBook} /></div>
+                                                <div className='flex-1'><OrderBook symbol={symbol} data={orderBook} /></div>
+                                                {/* <div className='flex-1'><OrderBookTest symbol={symbol} data={orderBook} /></div> */}
                                         </div>
 
                                       

@@ -126,7 +126,7 @@ export const OrderBook: React.FC<OrderBookProps> = ({
                                                                                 {ask.size.toFixed(2)}
                                                                         </span>
                                                                         <span className="text-right z-10 text-gray-300">
-                                                                                {ask.total.toFixed(2)}
+                                                                                {ask.quantity.toFixed(2)}
                                                                         </span>
                                                                 </div>
                                                         );
@@ -171,7 +171,7 @@ export const OrderBook: React.FC<OrderBookProps> = ({
                                                                                 {bid.size.toFixed(2)}
                                                                         </span>
                                                                         <span className="text-right z-10 text-gray-300">
-                                                                                {bid.total.toFixed(2)}
+                                                                                {bid.quantity.toFixed(2)}
                                                                         </span>
                                                                 </div>
                                                         );

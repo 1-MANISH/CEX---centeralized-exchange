@@ -13,18 +13,6 @@ import { connectRedis } from "./utils/engine-client.ts"
 import { listenForEngineResponses } from "./utils/engine/listenForEngineResponses.ts"
 
 
-// // in-memory state
-// //balances = {userId:{USD:{available:0,locked:0},SOL:{available:0,locked:0}}}
-// export const BALANCES : Record<string,Record<string,Balance>> = {}
-
-// /*
-// bids:[] // highest price first
-// asks:[] // lowest price first
-// orderbook = {ETH:{bids:[] ,asks:[] ,lastTradePrice:0}}
-// */
-// export const ORDERBOOK:Record<string,{bids:Order[],asks:Order[],lastTradePrice:number}> = {}
-
-
 async function main(){
 
         await connectRedis()
@@ -49,9 +37,7 @@ async function main(){
                 })
         })
 
-
         app.use("/",appRouter)
-
 
         app.use(
                 (error:unknown , _req:Request,res:Response,_next:NextFunction)=>{

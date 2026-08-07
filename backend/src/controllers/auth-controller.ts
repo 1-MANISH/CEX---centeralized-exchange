@@ -4,10 +4,12 @@ import { authSchema } from "../types/auth.schema.ts";
 import {sendValidationError} from "../utils/validation.ts"
 import { prismaClient } from "../db.ts";
 import { createToken } from "../utils/auth-token.ts";
-// import { BALANCES } from "../index.ts";
 import { ENV } from "../utils/env.ts";
 import { MESSAGES, STATUS_CODE } from "../utils/constant.ts";
 import { sendError, sendSuccess } from "../utils/response.ts";
+import { publisher } from "../utils/engine-client.ts";
+import { waitForEngineResponse } from "../store/pending-response.ts";
+import { sendResponseToEngine } from "../utils/engine/sendResponseToEngine.ts";
 
 function getUserId(req:Request):string{
        if(!req.userId)  throw new Error(MESSAGES.NOT_AUTHORIZED as string)
@@ -40,11 +42,16 @@ async function signupHandler(
                         }
                 })
 
-                BALANCES[user.id] = {USD:{available:0,locked:0}}
                 // create token and set cookie
                 createToken({userId:user.id},res)
 
-                sendSuccess(res,STATUS_CODE.CREATED as number,{userId:user.id,username:user.username,balance:null},MESSAGES.SIGNUP_SUCCESS as string)
+                // also send request to backend for initial balance -  to add 1000 USD by default
+                const correlationId = crypto.randomUUID()
+                const response =  waitForEngineResponse(correlationId)
+                const payload ={userId:user.id,symbol:'USD',quantity:1000}
+                await sendResponseToEngine(correlationId,ENV.RESPONSE_QUEUE,'initiated_user_balance',payload)
+                const data = await response as any
+                sendSuccess(res,STATUS_CODE.CREATED as number,{userId:user.id,username:user.username,balance:data.balance ??{}},MESSAGES.SIGNUP_SUCCESS as string)
 
         } catch (error) {
 
@@ -90,7 +97,7 @@ async function signinHandler(
                 // create token and set cookie
                 createToken({userId:userExist.id },res)
 
-                sendSuccess(res,STATUS_CODE.OK as number,{userId:userExist.id,username:userExist.username,balance:{USD:{available:0,locked:0}} },MESSAGES.LOGIN_SUCCESS as string)
+                sendSuccess(res,STATUS_CODE.OK as number,{userId:userExist.id,username:userExist.username,balance:null },MESSAGES.LOGIN_SUCCESS as string)
         } catch (error) {
                 sendError(res,STATUS_CODE.SERVER_ERROR as number,MESSAGES.USER_NOT_FOUND as string, error?.message  ?? "Internal server error")
         }
@@ -106,7 +113,14 @@ async function getMyProfile( req:Request,res:Response    ):Promise<void>{
                 return
         }
 
-        sendSuccess(res,STATUS_CODE.OK as number,{userId:user.id,username:user.username,balance:BALANCES[user.id]??null},MESSAGES.LOGIN_SUCCESS as string)
+        const correlationId = crypto.randomUUID()
+        // register correlationId -  means waiting for queue response
+        const response =  waitForEngineResponse(correlationId)
+        const payload={userId:user.id}
+        await sendResponseToEngine(correlationId,ENV.RESPONSE_QUEUE,'get_user_balance',payload)
+        const data = await response as any
+
+        sendSuccess(res,STATUS_CODE.OK as number,{userId:user.id,username:user.username,balance:data.balance??null},MESSAGES.LOGIN_SUCCESS as string)
 }
 
 async function logout (req:Request,res:Response):Promise<void>{

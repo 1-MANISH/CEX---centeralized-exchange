@@ -12,12 +12,14 @@ type Type = "market" | "limit"
 type Side = "buy" | "sell"
 
 type EngineCommandType =
+  | "initiated_user_balance"
+  | "get_user_balance"
   | "deposit_asset"
   | "create_order"
   | "get_depth"
-  | "get_user_balance"
-  | "get_order"
-  | "cancel_order";
+  | "cancel_order"
+  | "make_new_stock_entry"
+  ;
 
 interface UserOrder{
         userId:string,

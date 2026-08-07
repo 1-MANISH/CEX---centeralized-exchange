@@ -30,14 +30,17 @@ async function main(){
 
                 const{key,element} = response
                 const message = JSON.parse(element)
-               const {correlationId,responseQueue,type,payload} = message
+                const {correlationId,responseQueue,type,payload} = message
 
                 const data = await handleEngineRequest({type,payload})
 
+                if(type==="make_new_stock_entry")continue
+
                 // send response via- responserQueue
                 // await sendResponse(responseQueue,correlationId,ok:true,data)
+                console.log(`Returning the response for ${correlationId} for ${type} to ${responseQueue}`)
                 await responserClient.lPush(responseQueue,JSON.stringify({correlationId,ok:true,data}))
-                
+
         }
 }
 main()
