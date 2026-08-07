@@ -7,38 +7,19 @@ import express , {
 } from "express"
 import { ENV } from "./utils/env.ts"
 import appRouter from "./routes/index.ts"
-import {  type Balance, type Order } from "./utils/interfaces.ts"
 import { STATUS_CODE } from "./utils/constant.ts"
 import { sendError } from "./utils/response.ts"
-import { loadSnapShot,saveSnapShot,shutdown } from "./snapshot/snapshot.ts"
-
-// in-memory state
-//balances = {userId:{USD:{available:0,locked:0},SOL:{available:0,locked:0}}}
-export const BALANCES : Record<string,Record<string,Balance>> = {}
-
-/*
-bids:[] // highest price first
-asks:[] // lowest price first
-orderbook = {ETH:{bids:[] ,asks:[] ,lastTradePrice:0}}
-*/
-export const ORDERBOOK:Record<string,{bids:Order[],asks:Order[],lastTradePrice:number}> = {}
+import { connectRedis } from "./utils/engine-client.ts"
+import { listenForEngineResponses } from "./utils/engine/listenForEngineResponses.ts"
 
 
 async function main(){
 
-        const snapshot = await loadSnapShot()
+        await connectRedis()
 
-        if(snapshot){
-                Object.assign(ORDERBOOK,snapshot.orderbook)
-                Object.assign(BALANCES,snapshot.balances)
-        }
+        await listenForEngineResponses()
 
-        setInterval(async()=>{
-                 await saveSnapShot(
-                        ORDERBOOK,
-                        BALANCES
-                )
-        },5*60*1000)
+        console.log(`[Backend] Starting...`)
 
         const app = express()
 
@@ -56,9 +37,7 @@ async function main(){
                 })
         })
 
-
         app.use("/",appRouter)
-
 
         app.use(
                 (error:unknown , _req:Request,res:Response,_next:NextFunction)=>{
@@ -74,6 +53,5 @@ async function main(){
 
 main()
 
-process.on("SIGINT",shutdown)
-process.on("SIGTERM",shutdown)
+
 

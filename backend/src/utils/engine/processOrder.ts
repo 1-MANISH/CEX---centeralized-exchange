@@ -1,24 +1,16 @@
 
 import { prismaClient } from "../../db.ts"
+import { waitForEngineResponse } from "../../store/pending-response.ts"
+import { publisher } from "../engine-client.ts"
+import { ENV } from "../env.ts"
 import type {  UserOrder } from "../interfaces.ts"
-import { lockFunds } from "./lockFunds.ts"
-import { matchBuy } from "./matchBuy.ts"
-import { matchSell } from "./matchSell.ts"
-import { validateOrder } from "./validateOrder.ts"
+import { sendResponseToEngine } from "./sendResponseToEngine.ts"
 
 
 
 export async function processOrder(order:UserOrder){
 
         try {
-
-                // no need but just to be sure
-                validateOrder(order)
-
-                // locking funds if available otherwise throwing error to the user
-                lockFunds(order)
-
-                // now order may be full filled or partially filled
 
                 // we are sure that order can seat into the orderbook and can make order into database
                 let dbOrder =   await prismaClient.order.create({
@@ -30,7 +22,17 @@ export async function processOrder(order:UserOrder){
                         }
                 })
 
-                const { fills,updatedOrders,lastTradePrice} = order.side ==="buy" ? matchBuy(dbOrder) : matchSell(dbOrder)
+                const correlationId = dbOrder.id
+
+                const response =  waitForEngineResponse(correlationId)
+
+               // sending the order to the engine => matching logic
+                const payload = {order:dbOrder}
+                await sendResponseToEngine(correlationId,ENV.RESPONSE_QUEUE,'create_order',payload)
+
+                const data = await response as any
+
+                const {fills,updatedOrders,filledQuantity,remainingQuantity,lastTradePrice} = data
 
                 // persist the trades and orders in the database
                await prismaClient.$transaction(async (tx) => {
@@ -55,8 +57,9 @@ export async function processOrder(order:UserOrder){
                         where:{id:dbOrder.id},
                 })
                 return {
-                        filledQuantity:ourOrder?.filledQuantity,
-                        remainingQuantity:ourOrder?.remainingQuantity,
+                        id:dbOrder.id,
+                        filledQuantity:ourOrder?.filledQuantity ?? filledQuantity,
+                        remainingQuantity:ourOrder?.remainingQuantity ?? remainingQuantity,
                         lastTradePrice
                 }
         } catch (error) {

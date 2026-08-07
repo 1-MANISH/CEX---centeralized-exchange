@@ -43,6 +43,8 @@ body:{
 
 // create order
 exchangeRouter.post("/order",requiredAuth,asyncHandler(createOrder))
+
+
 // get order details
 /*
 return {
@@ -55,21 +57,22 @@ return {
 */
 exchangeRouter.get("/order/:orderId",requiredAuth, asyncHandler(getOrder))
 
-// cancel order -  only unfilled orders can be cancelled
-/*
-originalOrder 100 SOL
-filled  = 40 SOL
-remaining = 60 SOL
+// // cancel order -  only unfilled orders can be cancelled
+// /*
+// originalOrder 100 SOL
+// filled  = 40 SOL
+// remaining = 60 SOL
 
-60 SOL removed from orderbook
-*/
+// 60 SOL removed from orderbook
+// */
 exchangeRouter.put("/order/:orderId",requiredAuth,asyncHandler(cancelOrder))
 
-// get all orders
+// // get all orders
 exchangeRouter.get("/orders", requiredAuth,asyncHandler(getAllOrder))
 
 // --- Market data ---
 // get orderbook - app.get('/depth/:symbol',(req,res)=>{})
+
 exchangeRouter.get("/depth/:symbol",asyncHandler(getDepth))
 
 exchangeRouter.get("/stocks/matrix",asyncHandler(getAllStocksMatrix))

@@ -1,8 +1,9 @@
 
-import { ORDERBOOK } from "../..";
-import type { UserOrder } from "../interfaces";
+import { ORDERBOOK } from "../.."
+import type { Order } from "../../utils/interfaces"
 
-export  function validateOrder(order:UserOrder){
+
+export  function validateOrder(order:Order){
 
         const book = ORDERBOOK[order.market]
 

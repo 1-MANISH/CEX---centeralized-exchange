@@ -21,15 +21,6 @@ type EngineCommandType =
   | "make_new_stock_entry"
   ;
 
-interface UserOrder{
-        userId:string,
-        type:Type,
-        side:Side,
-        market:string,
-        quantity:number
-        price?:number|null,
-}
-
  interface Order {
     id: string;
     userId: string;
@@ -44,19 +35,12 @@ interface UserOrder{
     createdAt: Date;
 }
 
-
-interface Matrix {
-        name:string,
-        symbol:string,
-        currentPrice:number,
-        volume24h:number,
-        change24h:number
-}
-
-interface TokenPayload {
-        userId:string;
+interface Message{
+        type:EngineCommandType,
+        payload:any
 }
 
 
 
-export type {UserOrder,Order, Status, Type, Side , Balance, Matrix, TokenPayload,EngineCommandType}
+
+export type {Message,Order, Status, Type, Side , Balance}
